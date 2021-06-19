@@ -164,10 +164,10 @@ async def on_message(message):
 @tasks.loop(minutes=1)
 async def remindFunction():
     print('letscheck')
-    roleexist = -1
     now = datetime.datetime.now()
     if "reminder" in db.keys():
       for rm in db["reminder"]:
+        roleexist = -1
         print(rm[0])
         print(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M"))
         stringrm = rm[0]
