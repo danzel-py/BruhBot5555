@@ -90,12 +90,12 @@ def restart_bot():
 
 # COMMANDS
 @bot.command(name="restart")
-async def restartbotcommand(ctx):
+async def restartbf(ctx):
     await ctx.channel.send("Please wait...")
     restart_bot()
   
-@bot.command
-async def inspire(ctx):
+@bot.command(name ="inspire")
+async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
 
@@ -108,7 +108,7 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
     # Channel ID goes here
     await bot.get_channel(855477991600422926).send(
-        "Hi I'm ready, $help to get commands")
+        "Hi I'm ready, B$help to get commands")
 
 
 # ON MESSAGE
@@ -124,17 +124,17 @@ async def on_message(message):
     if msg.startswith('B$hello'):
         await message.channel.send('Hello!')
 
-    if msg.startswith('B$inspire'):
-        await message.channel.send(getQuote())
-
-
+    # init Encouragement Words from Array and DB
     options = starter_encouragements
     if "encouragements" in db.keys():
         options.extend(db["encouragements"])
 
+    # Find sad words
     if any(word in msg for word in sadwords):
         await message.channel.send(random.choice(options))
 
+
+    # ! Migrate to bot command
     if msg.startswith("B$new"):
         encouraging_message = msg.split("B$new ", 1)[1]
         update_encouragements(encouraging_message)
