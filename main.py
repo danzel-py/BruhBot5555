@@ -42,11 +42,11 @@ def dateToStr(datestr,timestr): # accepts d/m/Y and H:M
     dateint = datetime.datetime.strptime(datestr, "%d/%m/%Y")
     timeint = datetime.datetime.strptime(timestr, "%H:%M")
     dateobj = dateint + datetime.timedelta(hours = timeint.hour - 7, minutes = timeint.minute)
-    dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H/%M")
+    dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H:%M")
     return dateobjtostr
 
 def strToDate(strdate):
-  dateobj = datetime.datetime.strptime(strdate, "%d/%m/%Y %H/%M")
+  dateobj = datetime.datetime.strptime(strdate, "%d/%m/%Y %H:%M")
   return dateobj
   
 
@@ -79,6 +79,8 @@ async def inspirebf(ctx):
 @bot.command(name ="reminder")
 async def reminderbf(ctx,namatugas,datestr,timestr,tag):
     finalstr = dateToStr(datestr,timestr)
+    if(tag == "me"):
+      tag = "<@{}>".format(str(ctx.message.author.id))
     remindobj = [
       finalstr,
       namatugas,
@@ -102,7 +104,12 @@ async def reminderbf(ctx,namatugas,datestr,timestr,tag):
 @bot.command(name ="listreminder")
 async def listreminderbf(ctx):
     if "reminder" in db.keys():
-      await ctx.channel.send(db["reminder"])
+      # await ctx.channel.send(db["reminder"])
+      await ctx.channel.send("Upcoming events:")
+      for rm in db["reminder"]:
+        await ctx.channel.send('-')
+        await ctx.channel.send("{} - {}".format(rm[1],rm[2]))
+        await ctx.channel.send(rm[0])
     else:
       await ctx.channel.send("There's no reminder at the moment!")
       await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
@@ -162,48 +169,37 @@ async def remindFunction():
     if "reminder" in db.keys():
       for rm in db["reminder"]:
         print(rm[0])
-        print(datetime.datetime.strftime(now,"%d/%m/%Y %H/%M"))
+        print(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M"))
         stringrm = rm[0]
         daterm = strToDate(stringrm)
         datermhminus1 = daterm + datetime.timedelta(hours = -1)
         datermmminus10 = daterm + datetime.timedelta(minutes = -10)
-        strhminus1 = datetime.datetime.strftime(datermhminus1,"%d/%m/%Y %H/%M")
-        strmminus10 = datetime.datetime.strftime(datermmminus10,"%d/%m/%Y %H/%M")
+        strhminus1 = datetime.datetime.strftime(datermhminus1,"%d/%m/%Y %H:%M")
+        strmminus10 = datetime.datetime.strftime(datermmminus10,"%d/%m/%Y %H:%M")
 
-        if strmminus10 == now.strftime("%d/%m/%Y %H/%M"):
+        if strmminus10 == now.strftime("%d/%m/%Y %H:%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           if rm[2] in rolelist:
             roleexist = 1
-
-
-
 
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
           await bot.get_channel(channelint).send("Hey {} it's 10 minutes to {}".format(rm[2],rm[1]))
-        if strhminus1 == now.strftime("%d/%m/%Y %H/%M"):
+        if strhminus1 == now.strftime("%d/%m/%Y %H:%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           if rm[2] in rolelist:
             roleexist = 1
-          # next role
-
-
-
 
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
           await bot.get_channel(channelint).send("Hey {} it's 1 hour to {}".format(rm[2],rm[1]))
-        if rm[0] == now.strftime("%d/%m/%Y %H/%M"):
+        if rm[0] == now.strftime("%d/%m/%Y %H:%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           # ?Question: How do i get list of all roles?
           # unsolved
           # TODO: masukin roles manual :v
           if rm[2] in rolelist:
             roleexist = 1
-          # next role
-
-
-
 
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
