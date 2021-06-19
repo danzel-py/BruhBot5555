@@ -11,38 +11,9 @@ import json
 import datetime
 from discord.ext import commands,tasks
 
+# CSB25 - 855440129434714112
+# ucb - 855477991600422926
 channelint = 855477991600422926
-# Copas dari readme
-# * FEATURE READY:
-# Keyword nya B$ gatau ntar ganti ato gimana
-# ini masih ngasal sih, nanti di delete kayanya
-# inspire : sends a random quote
-# encouragement word (kena keyword tertentu bakal nge cheer up) (CRUD ready)
-
-# TODO:
-# Migrate on message commands to bot commands
-
-# Features - TOADD:
-
-# -. B$help
-#   Send keyword + info bot
-
-# 1. Info Binus
-#   Cari/Bikin API instagram post grabber
-#   Pake keywoard buat nyaring info tertentu
-
-# 2. Reminder Deadline Tugas
-#   Format:
-#   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
-#   Contoh:
-#   B$reminder PRLinearAlgebraWeek1 02/02/2022 23:00 everyone
-#   .
-#   ribet di tag kayanya, ntar bikin role per kelas juga (kelas kita kebagi 2/3 kayanya)
-
-# 3. Reminder Jadwal Kuliah
-#   tfw blom dapet jadwal kuliah
-#   nanti bikin API get jadwal kuliah
-#   ^kalo mager input jadwal kuliah sendiri ke DB nya
 
 activity = discord.Game(
     name=
@@ -53,11 +24,6 @@ bot = commands.Bot(command_prefix="B$",
                    activity=activity,
                    status=discord.Status.dnd)
 
-# sadwords = ["bruh", "sad", "qq", "😞", "fuck", "ajg"]
-
-# starter_encouragements = [
-#     "Cheer up!", "Hang in there.", "You are a great person!"
-# ]
 
 # FUNCTIONS
 def getQuote():
@@ -67,20 +33,6 @@ def getQuote():
     return (quote)
 
 
-# def update_encouragements(encouraging_message):
-#     if "encouragements" in db.keys():
-#         encouragements = db["encouragements"]
-#         encouragements.append(encouraging_message)
-#         db["encouragements"] = encouragements
-#     else:
-#         db["encouragements"] = [encouraging_message]
-
-
-# def delete_encouragement(index):
-#     encouragements = db["encouragements"]
-#     if len(encouragements) > index:
-#         del encouragements[index]
-#     db["encouragements"] = encouragements
 
 def dateToStr(datestr,timestr): # accepts d/m/Y and H:M
     # Fungsi ini buat timezone WIB GMT+7!
@@ -146,8 +98,6 @@ async def reminderbf(ctx,namatugas,datestr,timestr,tag):
 
 # TODO: UNDO ADD REMINDER
 
-# TODO: REMIND @designated time, (gatau gimana)
-
 @bot.command(name ="listreminder")
 async def listreminderbf(ctx):
     if "reminder" in db.keys():
@@ -188,31 +138,6 @@ async def on_message(message):
     if msg.startswith('B$hello'):
         await message.channel.send('Hello!')
 
-    # init Encouragement Words from Array and DB
-    # options = starter_encouragements
-    # if "encouragements" in db.keys():
-    #     options.extend(db["encouragements"])
-
-    # Find sad words
-    # if any(word in msg for word in sadwords):
-    #     await message.channel.send(random.choice(options))
-
-
-    # ! Migrate to bot command
-    # if msg.startswith("B$new"):
-    #     encouraging_message = msg.split("B$new ", 1)[1]
-    #     update_encouragements(encouraging_message)
-    #     await message.channel.send("New encouraging message added.")
-
-    # if msg.startswith("B$del"):
-    #     encouragements = []
-    #     if "encouragements" in db.keys():
-    #         index = int(msg.split("B$del ", 1)[1])
-    #         delete_encouragement(index)
-    #         encouragements = db["encouragements"]
-    #     await message.channel.send(encouragements)
-    #     await message.channel.send("Changes will be made on restart 😞")
-    #     await message.channel.send("Type B$restart to restart me.")
 
 
 # b25 everyone: 855701462793453578
@@ -231,7 +156,7 @@ async def remindFunction():
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           # ?Question: How do i get list of all roles?
           # unsolved
-          # masukin roles manual :v
+          # TODO: masukin roles manual :v
           if rm[2] == "everyone":
             roleexist = 1
           # next role
