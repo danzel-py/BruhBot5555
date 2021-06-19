@@ -26,7 +26,7 @@ Features - TOADD:
 2. Reminder Deadline Tugas
 
   Format:
-  B$reminder (nama_tugas) (DD/MM/YYYY) (HH:mm) (tag_siapa_aja)
+  B$reminder (nama_tugas) (dd/mm/yyyy) (HH:MM) (tag_siapa_aja)
 
   Contoh:
   B$reminder PRLinearAlgebraWeek1 02/02/2022 23:00 everyone
@@ -38,5 +38,5 @@ Features - TOADD:
   tfw blom dapet jadwal kuliah
 
   nanti bikin API get jadwal kuliah
-  
+
   ^kalo mager input jadwal kuliah sendiri ke DB nya

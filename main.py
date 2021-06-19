@@ -7,6 +7,7 @@ import os
 import requests
 import random
 import json
+import datetime
 from discord.ext import commands
 
 # Copas dari readme
@@ -30,7 +31,7 @@ from discord.ext import commands
 
 # 2. Reminder Deadline Tugas
 #   Format:
-#   B$reminder [nama_tugas] [DD/MM/YYYY] [HH:mm] [tag_siapa_aja?]
+#   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
 #   Contoh:
 #   B$reminder PRLinearAlgebraWeek1 02/02/2022 23:00 everyone
 #   .
@@ -51,6 +52,8 @@ bot = commands.Bot(command_prefix="B$",
                    status=discord.Status.dnd)
 
 sadwords = ["bruh", "sad", "qq", "😞", "fuck", "ajg"]
+
+blankobj = {}
 
 starter_encouragements = [
     "Cheer up!", "Hang in there.", "You are a great person / bot!"
@@ -93,18 +96,51 @@ def restart_bot():
 async def restartbf(ctx):
     await ctx.channel.send("Please wait...")
     restart_bot()
-  
 @bot.command(name ="inspire")
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
+@bot.command(name ="resetreminder")
+async def initdbbf(ctx):
+      del db["reminder"]
+      await ctx.channel.send("reset done")
 
+#   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
+@bot.command(name ="reminder")
+async def reminderbf(ctx,namatugas,datestr,timestr,tag):
+    dateint = datetime.datetime.strptime(datestr, "%d/%m/%Y")
+    timeint = datetime.datetime.strptime(timestr, "%H:%M")
+    dateobj = dateint + datetime.timedelta(hours = timeint.hour, minutes = timeint.minute)
+    dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H/%M")
+    remindobj = [
+      dateobjtostr,
+      namatugas,
+      tag
+    ]
+    if "reminder" in db.keys():
+      dbr = db["reminder"]
+      dbr.append(remindobj)
+    else:
+      db["reminder"] = remindobj
+    await ctx.channel.send("Reminder {} set to {} {} for {}".format(namatugas,datestr,timestr,tag))
+# Jadi di database reminder teh isinya list remindobj itu.
+# Rada penting: si tanggalnya string, kalo dalam bentuk date object gabisa masuk ke db
 
+@bot.command(name ="listreminder")
+async def listreminderbf(ctx):
+    if "reminder" in db.keys():
+      await ctx.channel.send(db["reminder"])
+    else:
+      await ctx.channel.send("There's no reminder at the moment!")
+      await ctx.channel.send("Try adding one with this format:")
+      await ctx.channel.send("B$reminder nama_tugas 31/03/2022 23:59 me")
+
+# ----
 
 # ON READY
 @bot.event
 async def on_ready():
-    print(db["encouragements"])
+    print(db["reminder"])
     print('We have logged in as {0.user}'.format(bot))
     # Channel ID goes here
     await bot.get_channel(855477991600422926).send(
