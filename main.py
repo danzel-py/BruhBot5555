@@ -15,6 +15,9 @@ from discord.ext import commands,tasks
 # ucb - 855477991600422926
 channelint = 855477991600422926
 
+#manual :v
+rolelist = ["everyone"]
+
 activity = discord.Game(
     name=
     "Bot nya lagi dibikin.\nIde:\nReminder Tugas,\nInfo Binus,\nReminder Jadwal Kelas"
@@ -66,10 +69,6 @@ async def restartbf(ctx):
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
-@bot.command(name ="resetreminder")
-async def initdbbf(ctx):
-      del db["reminder"]
-      await ctx.channel.send("reset done")
 
 #   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
 
@@ -98,26 +97,24 @@ async def reminderbf(ctx,namatugas,datestr,timestr,tag):
 
 # TODO: UNDO ADD REMINDER
 
+
+
 @bot.command(name ="listreminder")
 async def listreminderbf(ctx):
     if "reminder" in db.keys():
       await ctx.channel.send(db["reminder"])
     else:
       await ctx.channel.send("There's no reminder at the moment!")
-      await ctx.channel.send("Try adding one with this format:")
+      await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
       await ctx.channel.send("B$reminder nama_tugas 31/03/2022 23:59 me")
-
-@bot.command(pass_context=True, name="listroles")
-async def listroles(ctx):
-    mentions = [role.mention for role in ctx.message.author.roles if role.mentionable]
-    await ctx.channel.send(mentions)
 
 # ----
 
 # ON READY
 @bot.event
 async def on_ready():
-    print(db["reminder"])
+    if "reminder" in db.keys():
+      print(db["reminder"])
     remindFunction.start()
     print('We have logged in as {0.user}'.format(bot))
     # Channel ID goes here
@@ -125,7 +122,7 @@ async def on_ready():
         "Hi I'm ready, B$help to get commands.")
 
 
-# ON MESSAGE
+# ON MESSAGE blm kepake
 @bot.event
 async def on_message(message):
     # AVOIDS SELF COMMAND
@@ -137,6 +134,21 @@ async def on_message(message):
 
     if msg.startswith('B$hello'):
         await message.channel.send('Hello!')
+
+    # Reset Reminder
+    if msg.startswith('B$resetreminder'):
+        channel = message.channel
+        await channel.send('u sure mate? yes/no')
+
+        def check(m):
+            return m.content == 'yes' and m.channel == channel
+
+        henji = await bot.wait_for('message', check=check)
+        if "reminder" in db.keys():
+          del db["reminder"]
+        else:
+          channel.send("bruh issalready empty")
+        await channel.send('Deleted bruh.'.format(henji))
 
 
 
@@ -151,13 +163,42 @@ async def remindFunction():
       for rm in db["reminder"]:
         print(rm[0])
         print(datetime.datetime.strftime(now,"%d/%m/%Y %H/%M"))
+        stringrm = rm[0]
+        daterm = strToDate(stringrm)
+        datermhminus1 = daterm + datetime.timedelta(hours = -1)
+        datermmminus10 = daterm + datetime.timedelta(minutes = -10)
+        strhminus1 = datetime.datetime.strftime(datermhminus1,"%d/%m/%Y %H/%M")
+        strmminus10 = datetime.datetime.strftime(datermmminus10,"%d/%m/%Y %H/%M")
 
+        if strmminus10 == now.strftime("%d/%m/%Y %H/%M"):
+          await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
+          if rm[2] in rolelist:
+            roleexist = 1
+
+
+
+
+          if roleexist != -1:
+            await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
+          await bot.get_channel(channelint).send("Hey {} it's 10 minutes to {}".format(rm[2],rm[1]))
+        if strhminus1 == now.strftime("%d/%m/%Y %H/%M"):
+          await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
+          if rm[2] in rolelist:
+            roleexist = 1
+          # next role
+
+
+
+
+          if roleexist != -1:
+            await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
+          await bot.get_channel(channelint).send("Hey {} it's 1 hour to {}".format(rm[2],rm[1]))
         if rm[0] == now.strftime("%d/%m/%Y %H/%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           # ?Question: How do i get list of all roles?
           # unsolved
           # TODO: masukin roles manual :v
-          if rm[2] == "everyone":
+          if rm[2] in rolelist:
             roleexist = 1
           # next role
 
