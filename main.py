@@ -230,14 +230,21 @@ async def remindFunction():
         if rm[0] == now.strftime("%d/%m/%Y %H/%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           # ?Question: How do i get list of all roles?
+          # unsolved
+          # masukin roles manual :v
           if rm[2] == "everyone":
             roleexist = 1
+          # next role
+
+
+
+
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
           await bot.get_channel(channelint).send("Hey {} it's time to {}".format(rm[2],rm[1]))
 
-        elif strToDate(rm[0]) > now :
-          # TODO: del the reminder
+        elif strToDate(rm[0]) < now :
+          db["reminder"].remove(rm)
           print("dah lewat")
     else:
       return
