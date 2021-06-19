@@ -183,7 +183,7 @@ async def remindFunction():
             roleexist = 1
 
           if roleexist != -1:
-            await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
+            await bot.get_channel(channelint).send("tag: @{} ".format(rm[2]))
           await bot.get_channel(channelint).send("Hey {} it's 10 minutes to {}".format(rm[2],rm[1]))
         if strhminus1 == now.strftime("%d/%m/%Y %H:%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
@@ -191,7 +191,7 @@ async def remindFunction():
             roleexist = 1
 
           if roleexist != -1:
-            await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
+            await bot.get_channel(channelint).send("tag: @{} ".format(rm[2]))
           await bot.get_channel(channelint).send("Hey {} it's 1 hour to {}".format(rm[2],rm[1]))
         if rm[0] == now.strftime("%d/%m/%Y %H:%M"):
           await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
@@ -202,7 +202,7 @@ async def remindFunction():
             roleexist = 1
 
           if roleexist != -1:
-            await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
+            await bot.get_channel(channelint).send("tag: @{} ".format(rm[2]))
           await bot.get_channel(channelint).send("Hey {} it's time to {}".format(rm[2],rm[1]))
 
         elif strToDate(rm[0]) < now :
