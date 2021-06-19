@@ -5,6 +5,7 @@ from keep_alive import keep_alive
 import discord
 import os
 import requests
+import math
 import random
 import time
 import json
@@ -23,14 +24,27 @@ activity = discord.Game(
     "Bot nya lagi dibikin.\nIde:\nReminder Tugas,\nInfo Binus,\nReminder Jadwal Kelas"
 )
 
-bot = commands.Bot(command_prefix="B$",
+botstatus = discord.Status.online
+
+help_command = commands.DefaultHelpCommand(
+    no_category = 'Commands'
+)
+
+bot = commands.Bot(commands.when_mentioned_or('B$'),
                    activity=activity,
-                   status=discord.Status.dnd)
+                   status=botstatus,
+                   help_command = help_command)
 
 
 # FUNCTIONS
 def getQuote():
     response = requests.get("https://zenquotes.io/api/random")
+    json_data = json.loads(response.text)
+    quote = json_data[0]['q'] + " -" + json_data[0]['a']
+    return (quote)
+
+def todaysQuote():
+    response = requests.get("https://zenquotes.io/api/today")
     json_data = json.loads(response.text)
     quote = json_data[0]['q'] + " -" + json_data[0]['a']
     return (quote)
@@ -61,11 +75,12 @@ def restart_bot():
 
 
 # COMMANDS
-@bot.command(name="restart")
+@bot.command(name="restart",brief="restart bot")
 async def restartbf(ctx):
     await ctx.channel.send("Please wait...")
     restart_bot()
-@bot.command(name ="inspire")
+
+@bot.command(name ="inspire", brief = "inspiration +99")
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
@@ -76,9 +91,9 @@ async def inspirebf(ctx):
 
 # everyone: 855701462793453578
 
-@bot.command(name ="reminder")
-async def reminderbf(ctx,namatugas,datestr,timestr,tag):
-    finalstr = dateToStr(datestr,timestr)
+@bot.command(name ="reminder", brief = "add a new reminder")
+async def reminderbf(ctx,namatugas,tanggal,jam,tag):
+    finalstr = dateToStr(tanggal,jam)
     if(tag == "me"):
       tag = "<@{}>".format(str(ctx.message.author.id))
     remindobj = [
@@ -91,7 +106,7 @@ async def reminderbf(ctx,namatugas,datestr,timestr,tag):
       dbr.append(remindobj)
     else:
       db["reminder"] = [remindobj]
-    await ctx.channel.send("Reminder {} set to {} {} for {}".format(namatugas,datestr,timestr,tag))
+    await ctx.channel.send("Reminder {} set to {} {} for {}".format(namatugas,tanggal,jam,tag))
 
 #
 # Jadi di database reminder teh isinya list remindobj itu.
@@ -101,19 +116,39 @@ async def reminderbf(ctx,namatugas,datestr,timestr,tag):
 
 
 
-@bot.command(name ="listreminder")
+@bot.command(name ="listreminder",brief ="show upcoming events")
 async def listreminderbf(ctx):
+    now = datetime.datetime.now() + datetime.timedelta(hours = 9, minutes = 5)
     if "reminder" in db.keys():
+      if db["reminder"]:
       # await ctx.channel.send(db["reminder"])
-      await ctx.channel.send("Upcoming events:")
-      for rm in db["reminder"]:
-        await ctx.channel.send('-')
-        await ctx.channel.send("{} - {}".format(rm[1],rm[2]))
-        await ctx.channel.send(rm[0])
+        await ctx.channel.send("Upcoming events:")
+        for rm in db["reminder"]:
+          await ctx.channel.send('-')
+          await ctx.channel.send("{} - {}".format(rm[1],rm[2]))
+          await ctx.channel.send(datetime.datetime.strftime(
+            datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M") + datetime.timedelta(hours = 7),
+            "%d/%m/%Y %H:%M"
+          ))
+          diff = datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M")-datetime.datetime.now()
+          difd = diff.days
+          difs = diff.seconds
+          difh = math.floor(difs/3600)
+          difm = math.floor((difs%3600)/60)
+          if difd>25:
+            await ctx.channel.send("Due in more than 25 days 💤")
+          else:
+            difhh = difd*24 + difh
+            await ctx.channel.send("⚠️ Due in {} hour(s) and {} minute(s) ⚠".format(difhh,difm))
+      else:
+        await ctx.channel.send("There's no reminder at the moment!")
+        await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
+        await ctx.channel.send("B$reminder nama_tugas {} me".format(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M")))
+
     else:
       await ctx.channel.send("There's no reminder at the moment!")
       await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
-      await ctx.channel.send("B$reminder nama_tugas 31/03/2022 23:59 me")
+      await ctx.channel.send("B$reminder nama_tugas {} me".format(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M")))
 
 # ----
 
@@ -138,6 +173,9 @@ async def on_message(message):
         return
 
     msg = message.content
+
+    if msg.startswith(('thanks bot','Thanks bot','Thanks Bot')):
+      await message.channel.send('Your Welcome, 御主人様!')
 
     if msg.startswith('B$hello'):
         await message.channel.send('Hello!')
@@ -178,23 +216,20 @@ async def remindFunction():
         strmminus10 = datetime.datetime.strftime(datermmminus10,"%d/%m/%Y %H:%M")
 
         if strmminus10 == now.strftime("%d/%m/%Y %H:%M"):
-          await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           if rm[2] in rolelist:
             roleexist = 1
 
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: @{} ".format(rm[2]))
-          await bot.get_channel(channelint).send("Hey {} it's 10 minutes to {}".format(rm[2],rm[1]))
+          await bot.get_channel(channelint).send("🚨 Hey {} it's 10 minutes to {}. Gotta go fast!".format(rm[2],rm[1]))
         if strhminus1 == now.strftime("%d/%m/%Y %H:%M"):
-          await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           if rm[2] in rolelist:
             roleexist = 1
 
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: @{} ".format(rm[2]))
-          await bot.get_channel(channelint).send("Hey {} it's 1 hour to {}".format(rm[2],rm[1]))
+          await bot.get_channel(channelint).send("Hey {} it's 1 hour to {}.".format(rm[2],rm[1]))
         if rm[0] == now.strftime("%d/%m/%Y %H:%M"):
-          await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
           # ?Question: How do i get list of all roles?
           # unsolved
           # TODO: masukin roles manual :v
@@ -203,7 +238,7 @@ async def remindFunction():
 
           if roleexist != -1:
             await bot.get_channel(channelint).send("tag: @{} ".format(rm[2]))
-          await bot.get_channel(channelint).send("Hey {} it's time to {}".format(rm[2],rm[1]))
+          await bot.get_channel(channelint).send("Hey {} it's time to {}.".format(rm[2],rm[1]))
 
         elif strToDate(rm[0]) < now :
           db["reminder"].remove(rm)
@@ -211,8 +246,19 @@ async def remindFunction():
     else:
       return
 
+@tasks.loop(hours = 1)
+async def dailyQuotes():
+  now = datetime.datetime.now()
+  print('getting quotes...')
+  sixaclock = now.replace(hour = 6, minute = 0, second = 0, microsecond = 0)
+  sevenaclock = now.replace(hour = 7, minute = 0, second = 0, microsecond = 0)
+  if(now < sevenaclock and now > sixaclock):
+    await bot.get_channel(channelint).send(todaysQuote())
+
+
 
 my_secret = os.environ['TOKEN']
+
 
 
 keep_alive()  # AUTO PING
