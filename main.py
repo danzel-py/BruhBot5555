@@ -6,10 +6,12 @@ import discord
 import os
 import requests
 import random
+import time
 import json
 import datetime
-from discord.ext import commands
+from discord.ext import commands,tasks
 
+channelint = 855477991600422926
 # Copas dari readme
 # * FEATURE READY:
 # Keyword nya B$ gatau ntar ganti ato gimana
@@ -51,14 +53,11 @@ bot = commands.Bot(command_prefix="B$",
                    activity=activity,
                    status=discord.Status.dnd)
 
-sadwords = ["bruh", "sad", "qq", "😞", "fuck", "ajg"]
+# sadwords = ["bruh", "sad", "qq", "😞", "fuck", "ajg"]
 
-blankobj = {}
-
-starter_encouragements = [
-    "Cheer up!", "Hang in there.", "You are a great person / bot!"
-]
-
+# starter_encouragements = [
+#     "Cheer up!", "Hang in there.", "You are a great person!"
+# ]
 
 # FUNCTIONS
 def getQuote():
@@ -68,20 +67,35 @@ def getQuote():
     return (quote)
 
 
-def update_encouragements(encouraging_message):
-    if "encouragements" in db.keys():
-        encouragements = db["encouragements"]
-        encouragements.append(encouraging_message)
-        db["encouragements"] = encouragements
-    else:
-        db["encouragements"] = [encouraging_message]
+# def update_encouragements(encouraging_message):
+#     if "encouragements" in db.keys():
+#         encouragements = db["encouragements"]
+#         encouragements.append(encouraging_message)
+#         db["encouragements"] = encouragements
+#     else:
+#         db["encouragements"] = [encouraging_message]
 
 
-def delete_encouragement(index):
-    encouragements = db["encouragements"]
-    if len(encouragements) > index:
-        del encouragements[index]
-    db["encouragements"] = encouragements
+# def delete_encouragement(index):
+#     encouragements = db["encouragements"]
+#     if len(encouragements) > index:
+#         del encouragements[index]
+#     db["encouragements"] = encouragements
+
+def dateToStr(datestr,timestr): # accepts d/m/Y and H:M
+    # Fungsi ini buat timezone WIB GMT+7!
+    dateint = datetime.datetime.strptime(datestr, "%d/%m/%Y")
+    timeint = datetime.datetime.strptime(timestr, "%H:%M")
+    dateobj = dateint + datetime.timedelta(hours = timeint.hour - 7, minutes = timeint.minute)
+    dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H/%M")
+    return dateobjtostr
+
+def strToDate(strdate):
+  dateobj = datetime.datetime.strptime(strdate, "%d/%m/%Y %H/%M")
+  return dateobj
+  
+
+
 
 
 def restart_bot():
@@ -106,14 +120,16 @@ async def initdbbf(ctx):
       await ctx.channel.send("reset done")
 
 #   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
+
+# * ADD REMINDER
+
+# everyone: 855701462793453578
+
 @bot.command(name ="reminder")
 async def reminderbf(ctx,namatugas,datestr,timestr,tag):
-    dateint = datetime.datetime.strptime(datestr, "%d/%m/%Y")
-    timeint = datetime.datetime.strptime(timestr, "%H:%M")
-    dateobj = dateint + datetime.timedelta(hours = timeint.hour, minutes = timeint.minute)
-    dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H/%M")
+    finalstr = dateToStr(datestr,timestr)
     remindobj = [
-      dateobjtostr,
+      finalstr,
       namatugas,
       tag
     ]
@@ -121,10 +137,16 @@ async def reminderbf(ctx,namatugas,datestr,timestr,tag):
       dbr = db["reminder"]
       dbr.append(remindobj)
     else:
-      db["reminder"] = remindobj
+      db["reminder"] = [remindobj]
     await ctx.channel.send("Reminder {} set to {} {} for {}".format(namatugas,datestr,timestr,tag))
+
+#
 # Jadi di database reminder teh isinya list remindobj itu.
 # Rada penting: si tanggalnya string, kalo dalam bentuk date object gabisa masuk ke db
+
+# TODO: UNDO ADD REMINDER
+
+# TODO: REMIND @designated time, (gatau gimana)
 
 @bot.command(name ="listreminder")
 async def listreminderbf(ctx):
@@ -135,16 +157,22 @@ async def listreminderbf(ctx):
       await ctx.channel.send("Try adding one with this format:")
       await ctx.channel.send("B$reminder nama_tugas 31/03/2022 23:59 me")
 
+@bot.command(pass_context=True, name="listroles")
+async def listroles(ctx):
+    mentions = [role.mention for role in ctx.message.author.roles if role.mentionable]
+    await ctx.channel.send(mentions)
+
 # ----
 
 # ON READY
 @bot.event
 async def on_ready():
     print(db["reminder"])
+    remindFunction.start()
     print('We have logged in as {0.user}'.format(bot))
     # Channel ID goes here
-    await bot.get_channel(855477991600422926).send(
-        "Hi I'm ready, B$help to get commands")
+    await bot.get_channel(channelint).send(
+        "Hi I'm ready, B$help to get commands.")
 
 
 # ON MESSAGE
@@ -161,33 +189,62 @@ async def on_message(message):
         await message.channel.send('Hello!')
 
     # init Encouragement Words from Array and DB
-    options = starter_encouragements
-    if "encouragements" in db.keys():
-        options.extend(db["encouragements"])
+    # options = starter_encouragements
+    # if "encouragements" in db.keys():
+    #     options.extend(db["encouragements"])
 
     # Find sad words
-    if any(word in msg for word in sadwords):
-        await message.channel.send(random.choice(options))
+    # if any(word in msg for word in sadwords):
+    #     await message.channel.send(random.choice(options))
 
 
     # ! Migrate to bot command
-    if msg.startswith("B$new"):
-        encouraging_message = msg.split("B$new ", 1)[1]
-        update_encouragements(encouraging_message)
-        await message.channel.send("New encouraging message added.")
+    # if msg.startswith("B$new"):
+    #     encouraging_message = msg.split("B$new ", 1)[1]
+    #     update_encouragements(encouraging_message)
+    #     await message.channel.send("New encouraging message added.")
 
-    if msg.startswith("B$del"):
-        encouragements = []
-        if "encouragements" in db.keys():
-            index = int(msg.split("B$del ", 1)[1])
-            delete_encouragement(index)
-            encouragements = db["encouragements"]
-        await message.channel.send(encouragements)
-        await message.channel.send("Changes will be made on restart 😞")
-        await message.channel.send("Type B$restart to restart me.")
+    # if msg.startswith("B$del"):
+    #     encouragements = []
+    #     if "encouragements" in db.keys():
+    #         index = int(msg.split("B$del ", 1)[1])
+    #         delete_encouragement(index)
+    #         encouragements = db["encouragements"]
+    #     await message.channel.send(encouragements)
+    #     await message.channel.send("Changes will be made on restart 😞")
+    #     await message.channel.send("Type B$restart to restart me.")
+
+
+# b25 everyone: 855701462793453578
+# ucb everyone: 855703085825785856
+@tasks.loop(minutes=1)
+async def remindFunction():
+    print('letscheck')
+    roleexist = -1
+    now = datetime.datetime.now()
+    if "reminder" in db.keys():
+      for rm in db["reminder"]:
+        print(rm[0])
+        print(datetime.datetime.strftime(now,"%d/%m/%Y %H/%M"))
+
+        if rm[0] == now.strftime("%d/%m/%Y %H/%M"):
+          await bot.get_channel(channelint).send("(THIS IS AN AUTOMATED MESSAGE)")
+          # ?Question: How do i get list of all roles?
+          if rm[2] == "everyone":
+            roleexist = 1
+          if roleexist != -1:
+            await bot.get_channel(channelint).send("tag: <@{}> ".format(rm[2]))
+          await bot.get_channel(channelint).send("Hey {} it's time to {}".format(rm[2],rm[1]))
+
+        elif strToDate(rm[0]) > now :
+          # TODO: del the reminder
+          print("dah lewat")
+    else:
+      return
 
 
 my_secret = os.environ['TOKEN']
+
 
 keep_alive()  # AUTO PING
 bot.run(my_secret)

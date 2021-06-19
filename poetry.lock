@@ -184,6 +184,14 @@ typing_extensions = ">=3.7.4,<4.0.0"
 
 [[package]]
 category = "main"
+description = "Job scheduling for humans."
+name = "schedule"
+optional = false
+python-versions = ">=3.6"
+version = "1.1.0"
+
+[[package]]
+category = "main"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
 optional = false
@@ -214,7 +222,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "0ae21c9e64500970aec075669e13b87e99160de0248dc6c4771942563ddeda33"
+content-hash = "ebe81d3425320084eaed175ba244e1cd60d1a6f0e09554de10ce6d63d2293709"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -383,6 +391,10 @@ multidict = [
 replit = [
     {file = "replit-3.1.0-py3-none-any.whl", hash = "sha256:3aaf0791ce5b42fd1b740f58acf76461c703b8136fcc6358f2fbf44c0bdf9bb3"},
     {file = "replit-3.1.0.tar.gz", hash = "sha256:fcea2df361a195ab6a6739ddba429227f36944075f8852e35f77a4031d263ab0"},
+]
+schedule = [
+    {file = "schedule-1.1.0-py2.py3-none-any.whl", hash = "sha256:617adce8b4bf38c360b781297d59918fbebfb2878f1671d189f4f4af5d0567a4"},
+    {file = "schedule-1.1.0.tar.gz", hash = "sha256:e6ca13585e62c810e13a08682e0a6a8ad245372e376ba2b8679294f377dfc8e4"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},
