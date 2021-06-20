@@ -48,7 +48,7 @@ def getQuote():
 def todaysQuote():
     response = requests.get("https://zenquotes.io/api/today")
     json_data = json.loads(response.text)
-    quote = json_data[0]['q'] + " -" + json_data[0]['a']
+    quote = "Good Morning! Here's a quote to start the day.\n\n> *"+json_data[0]['q']+"*" + " \n\n-" + json_data[0]['a']
     return (quote)
 
 
@@ -160,10 +160,11 @@ async def on_ready():
     if "reminder" in db.keys():
       print(db["reminder"])
     remindFunction.start()
+    dailyQuotes.start()
     print('We have logged in as {0.user}'.format(bot))
     # Channel ID goes here
     await bot.get_channel(channelint).send(
-        "Hi I'm ready, B$help to get commands.")
+        "Hi I'm ready, `B$help` to get commands.")
 
 
 # ON MESSAGE blm kepake
@@ -255,10 +256,10 @@ async def remindFunction():
 
 @tasks.loop(hours = 1)
 async def dailyQuotes():
-  now = datetime.datetime.now()
   print('getting quotes...')
-  sixaclock = now.replace(hour = 6, minute = 0, second = 0, microsecond = 0)
-  sevenaclock = now.replace(hour = 7, minute = 0, second = 0, microsecond = 0)
+  now = datetime.datetime.now()
+  sixaclock = now.replace(hour = 22, minute = 0, second = 0, microsecond = 0)
+  sevenaclock = now.replace(hour = 23, minute = 0, second = 0, microsecond = 0)
   if(now < sevenaclock and now > sixaclock):
     await bot.get_channel(channelint).send(todaysQuote())
 
