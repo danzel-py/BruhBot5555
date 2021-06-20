@@ -29,7 +29,7 @@ rolelist = ["everyone"]
 
 activity = discord.Game(name="B$help")
 
-botstatus = discord.Status.dnd
+botstatus = discord.Status.online
 
 help_command = commands.DefaultHelpCommand(no_category='Commands')
 
@@ -65,10 +65,43 @@ def dateToStr(datestr, timestr):  # accepts d/m/Y and H:M
     dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H:%M")
     return dateobjtostr
 
-
 def strToDate(strdate):
     dateobj = datetime.datetime.strptime(strdate, "%d/%m/%Y %H:%M")
     return dateobj
+
+def jamFilter(jam):
+    if jam == "midnight": return "23:59"
+    if jam == "midnoon": return "12:00"
+    jam = re.sub('\.',':',jam)
+    pospostam = re.search("\d+:\d+am",jam)
+    pospostpm = re.search("\d+:\d+pm",jam)
+    posam = re.search("am",jam)
+    pospm = re.search("pm",jam)
+    if pospostam:
+        jam = jam[0:posam.start()]
+        return jam
+    if pospostpm:
+        jam = jam[0:pospm.start()]
+        poscolon = re.search(":",jam)
+        jamdepan = jam[0:poscolon.start()]
+        jam = str(int(jamdepan) + 12)+":00"
+        return jam
+    if posam:
+        jam = jam[0:posam.start()]+":00"
+        return jam
+    if pospm:
+        jam = jam[0:pospm.start()]
+        jam = str(int(jam) + 12)+":00"
+        return jam
+    truthyclock = re.search("\d+:\d+",jam)
+    if truthyclock:
+        return jam
+    else:
+        return "ERR"
+
+
+def tanggalFilter(tanggal):
+    return tanggal
 
 def restart_bot():
     os.execv(sys.executable, ['python'] + sys.argv)
@@ -87,7 +120,15 @@ class Reminder(commands.Cog):
                       brief="B$help reminder",
                       description="add new custom reminder")
     async def reminderbf(self, ctx, namatugas, tanggal, jam, tag):
+        jam = jamFilter(jam)
+        if(jam == "ERR"):
+            await ctx.channel.send("salah format jam bro")
+            return
+        tanggal = tanggalFilter(tanggal)
         finalstr = dateToStr(tanggal, jam)
+        if strToDate(finalstr) < datetime.datetime.now():
+            await ctx.channel.send("dah lewat bro")
+            return
         if (tag == "me"):
             tag = "<@{}>".format(str(ctx.message.author.id))
         remindobj = [finalstr, namatugas, tag]
@@ -169,13 +210,14 @@ class Reminder(commands.Cog):
                 rmdate = db["reminder"][-1][0]
                 rmname = db["reminder"][-1][1]
                 rmtag = db["reminder"][-1][2]
+                timeindo = datetime.datetime.strftime(datetime.datetime.strptime(rmdate, "%d/%m/%Y %H:%M") + datetime.timedelta(hours = 7),"%d/%m/%Y %H:%M")
                 if (rmtag == "me"):
                     rmtag = "<@{}>".format(str(ctx.message.author.id))
                 if (rmtag == "everyone"):
                     rmtag = "@everyone"
                 await ctx.channel.send(
                     "Deleting {} reminder for {} at {}".format(
-                        rmname, rmtag, rmdate))
+                        rmname, rmtag, timeindo))
                 del db["reminder"][-1]
                 await ctx.channel.send("Deleted! Reminder count: {}".format(len(db["reminder"].value)))
             else:
@@ -299,6 +341,14 @@ async def reminder(ctx):
                  value="B$reminder do_stuffs {} me".format(
                      datetime.datetime.strftime(now, "%d/%m/%Y %H:%M")),
                  inline=False)
+    em.add_field(name="Key", value="Registered Channel ID\nRegistered Tags", inline=True)
+    roleliststr = ""
+    for tagsr in rolelist:
+        roleliststr += tagsr + ", "
+    roleliststr += "me."
+    em.add_field(name="Value", value="{}\n{}".format(channelint, roleliststr), inline=True)
+    em.add_field(name="In progress:", value="Add ability to read 'today', 'tomorrow', and similar datestamp", inline=False)
+    em.set_footer(text="note: midnight is 23:59")
     await ctx.send(embed=em)
 
 
