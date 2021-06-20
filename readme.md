@@ -1,8 +1,19 @@
 # CS-B25 Discord Bot
-last update : June 19th 2021
+last update : June 20th 2021
 ## Features Available:
 
+### 0. B$help
+
+  - Info keyword + info bot
+
 ### 1. Reminder Deadline Tugas
+
+Sends message to designated channel for each deadline on hour-1, minute-5, and on time.
+
+
+  help:
+    
+    B$help reminder
 
   New Reminder:
 
@@ -11,7 +22,8 @@ last update : June 19th 2021
   Contoh:
       
     B$reminder PRLinearAlgebraWeek1 02/02/2022 23:00 everyone
-  bisa juga pake 'me' buat tag diri
+  tags: role(everyone, Admin, dll) , me.    
+
   
   
     
@@ -30,27 +42,31 @@ last update : June 19th 2021
 
 ### 1. Reminder Deadline Tugas
 
-  - Undo nge add nya
-  - Need fancy command names
-  - Minta admin bikin role kelas ntar
+  - ~~Need fancy command names~~
+  - Daily reminder, ngasih tau apa aja yang deadlinenya hari ini
+    + B$listtoday
+    + B$listtomorrow
+  - Minta admin bikin role kelas maybe
 
 ## Features - TOADD:
-
-### 0. B$help
-
-  - Send keyword + info bot
 
 ### 1. Info Binus
 
   - ~~Cari/Bikin API instagram post grabber~~ maap susah
     - ~~Pake keywoard buat nyaring info tertentu~~ API nya juga gaada
-  - ada ide lain?
+  - ide sad: kaya b25 gabungan, bot nya ngirim embed manual
+    - Q: siapa yg mo ngurus
 
-### 2. Reminder Jadwal Kuliah
+
+### 2. Reminder Jadwal Kuliah (daily tiap pagi)
 
   - tfw blom dapet jadwal kuliah
 
-  - nanti bikin API get jadwal kuliah
+  - ~~nanti bikin API get jadwal kuliah~~ : kalo niat
 
-    - ^kalo mager input jadwal kuliah sendiri ke DB nya
+    - input jadwal kuliah  ke DB nya
 
+### 99. Ide gabut
+  - bikin tabler, input list output rapih
+  - weather info, gabungin sama jadwal kuliah? (ez API)
+  
