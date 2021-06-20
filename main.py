@@ -1,4 +1,5 @@
 from emoji import UNICODE_EMOJI
+import cog
 import sys
 from replit import db
 import abc
@@ -75,6 +76,76 @@ def restart_bot():
 
 # ----
 
+# Reminder
+class Reminder(commands.Cog):
+  #   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
+
+# * ADD REMINDER
+
+# everyone: 855701462793453578
+  def __init__(self, bot):
+        self.bot = bot
+
+  @commands.command(name ="reminder", brief = "`B$help reminder`")
+  async def reminderbf(self,ctx,namatugas,tanggal,jam,tag):
+      finalstr = dateToStr(tanggal,jam)
+      if(tag == "me"):
+        tag = "<@{}>".format(str(ctx.message.author.id))
+      remindobj = [
+        finalstr,
+        namatugas,
+        tag
+      ]
+      if "reminder" in db.keys():
+        dbr = db["reminder"]
+        dbr.append(remindobj)
+      else:
+        db["reminder"] = [remindobj]
+      await ctx.channel.send("Reminder {} set to {} {} for {}".format(namatugas,tanggal,jam,tag))
+
+  #
+  # Jadi di database reminder teh isinya list remindobj itu.
+  # Rada penting: si tanggalnya string, kalo dalam bentuk date object gabisa masuk ke db
+
+  # TODO: UNDO ADD REMINDER
+
+
+
+  @commands.command(name ="listreminder",brief ="show upcoming events")
+  async def listreminderbf(self,ctx):
+      now = datetime.datetime.now() + datetime.timedelta(hours = 9, minutes = 5)
+      if "reminder" in db.keys():
+        if db["reminder"]:
+        # await ctx.channel.send(db["reminder"])
+          await ctx.channel.send("Upcoming events:")
+          for rm in db["reminder"]:
+            await ctx.channel.send('-')
+            await ctx.channel.send("{} - {}".format(rm[1],rm[2]))
+            await ctx.channel.send(datetime.datetime.strftime(
+              datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M") + datetime.timedelta(hours = 7),
+              "%d/%m/%Y %H:%M"
+            ))
+            diff = datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M")-datetime.datetime.now()
+            difd = diff.days
+            difs = diff.seconds
+            difh = math.floor(difs/3600)
+            difm = math.floor((difs%3600)/60)
+            if difd>25:
+              await ctx.channel.send("Due in more than 25 days 💤")
+            else:
+              difhh = difd*24 + difh
+              await ctx.channel.send("⚠️ Due in {} hour(s) and {} minute(s) ⚠".format(difhh,difm))
+        else:
+          await ctx.channel.send("There's no reminder at the moment!")
+          await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
+          await ctx.channel.send("B$reminder nama_tugas {} me".format(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M")))
+
+      else:
+        await ctx.channel.send("There's no reminder at the moment!")
+        await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
+        await ctx.channel.send("B$reminder nama_tugas {} me".format(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M")))
+
+
 
 # COMMANDS
 @bot.command(name="restart",brief="restart bot")
@@ -86,71 +157,7 @@ async def restartbf(ctx):
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
-
-#   B$reminder [nama_tugas] [dd/mm/yyyy] [HH:MM] [tag_siapa_aja?]
-
-# * ADD REMINDER
-
-# everyone: 855701462793453578
-
-@bot.command(name ="reminder", brief = "add a new reminder")
-async def reminderbf(ctx,namatugas,tanggal,jam,tag):
-    finalstr = dateToStr(tanggal,jam)
-    if(tag == "me"):
-      tag = "<@{}>".format(str(ctx.message.author.id))
-    remindobj = [
-      finalstr,
-      namatugas,
-      tag
-    ]
-    if "reminder" in db.keys():
-      dbr = db["reminder"]
-      dbr.append(remindobj)
-    else:
-      db["reminder"] = [remindobj]
-    await ctx.channel.send("Reminder {} set to {} {} for {}".format(namatugas,tanggal,jam,tag))
-
-#
-# Jadi di database reminder teh isinya list remindobj itu.
-# Rada penting: si tanggalnya string, kalo dalam bentuk date object gabisa masuk ke db
-
-# TODO: UNDO ADD REMINDER
-
-
-
-@bot.command(name ="listreminder",brief ="show upcoming events")
-async def listreminderbf(ctx):
-    now = datetime.datetime.now() + datetime.timedelta(hours = 9, minutes = 5)
-    if "reminder" in db.keys():
-      if db["reminder"]:
-      # await ctx.channel.send(db["reminder"])
-        await ctx.channel.send("Upcoming events:")
-        for rm in db["reminder"]:
-          await ctx.channel.send('-')
-          await ctx.channel.send("{} - {}".format(rm[1],rm[2]))
-          await ctx.channel.send(datetime.datetime.strftime(
-            datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M") + datetime.timedelta(hours = 7),
-            "%d/%m/%Y %H:%M"
-          ))
-          diff = datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M")-datetime.datetime.now()
-          difd = diff.days
-          difs = diff.seconds
-          difh = math.floor(difs/3600)
-          difm = math.floor((difs%3600)/60)
-          if difd>25:
-            await ctx.channel.send("Due in more than 25 days 💤")
-          else:
-            difhh = difd*24 + difh
-            await ctx.channel.send("⚠️ Due in {} hour(s) and {} minute(s) ⚠".format(difhh,difm))
-      else:
-        await ctx.channel.send("There's no reminder at the moment!")
-        await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
-        await ctx.channel.send("B$reminder nama_tugas {} me".format(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M")))
-
-    else:
-      await ctx.channel.send("There's no reminder at the moment!")
-      await ctx.channel.send("Try adding one with this format: (in GMT+7/WIB please)")
-      await ctx.channel.send("B$reminder nama_tugas {} me".format(datetime.datetime.strftime(now,"%d/%m/%Y %H:%M")))
+bot.add_cog(Reminder(bot))
 
 # ----
 

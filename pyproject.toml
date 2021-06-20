@@ -11,6 +11,7 @@ emoji = "^1.2.0"
 replit = "^3.1.0"
 flask = "^2.0.1"
 schedule = "^1.1.0"
+pycog3 = "^0.1.27"
 
 [tool.poetry.dev-dependencies]
 
