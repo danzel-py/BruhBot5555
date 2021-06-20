@@ -25,7 +25,9 @@ intents.presences = True
 intents.members = True
 
 #manual :v
-rolelist = ["everyone"]
+rolelist = {
+    "everyone": 855703085825785856,
+    "fooRole": 856154814303436820}
 
 activity = discord.Game(name="B$help")
 
@@ -36,7 +38,7 @@ help_command = commands.DefaultHelpCommand(no_category='Commands')
 bot = commands.Bot(commands.when_mentioned_or('B$'),
                    activity=activity,
                    status=botstatus,
-                   intents = intents)
+                   intents=intents)
 
 bot.remove_command("help")
 
@@ -56,6 +58,7 @@ def todaysQuote():
         0]['q'] + "*" + " \n\n-" + json_data[0]['a']
     return (quote)
 
+
 def dateToStr(datestr, timestr):  # accepts d/m/Y and H:M
     # Fungsi ini buat timezone WIB GMT+7!
     dateint = datetime.datetime.strptime(datestr, "%d/%m/%Y")
@@ -65,35 +68,38 @@ def dateToStr(datestr, timestr):  # accepts d/m/Y and H:M
     dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H:%M")
     return dateobjtostr
 
+
 def strToDate(strdate):
     dateobj = datetime.datetime.strptime(strdate, "%d/%m/%Y %H:%M")
     return dateobj
 
+
 def jamFilter(jam):
     if jam == "midnight": return "23:59"
     if jam == "midnoon": return "12:00"
-    jam = re.sub('\.',':',jam)
-    pospostam = re.search("\d+:\d+am",jam)
-    pospostpm = re.search("\d+:\d+pm",jam)
-    posam = re.search("am",jam)
-    pospm = re.search("pm",jam)
+    jam = re.sub('\.', ':', jam)
+    pospostam = re.search("\d+:\d+am", jam)
+    pospostpm = re.search("\d+:\d+pm", jam)
+    posam = re.search("am", jam)
+    pospm = re.search("pm", jam)
     if pospostam:
         jam = jam[0:posam.start()]
         return jam
     if pospostpm:
         jam = jam[0:pospm.start()]
-        poscolon = re.search(":",jam)
+        poscolon = re.search(":", jam)
         jamdepan = jam[0:poscolon.start()]
-        jam = str(int(jamdepan) + 12)+":00"
+        jambelakang = jam[poscolon.start():]
+        jam = str(int(jamdepan) + 12) + jambelakang
         return jam
     if posam:
-        jam = jam[0:posam.start()]+":00"
+        jam = jam[0:posam.start()] + ":00"
         return jam
     if pospm:
         jam = jam[0:pospm.start()]
-        jam = str(int(jam) + 12)+":00"
+        jam = str(int(jam) + 12) + ":00"
         return jam
-    truthyclock = re.search("\d+:\d+",jam)
+    truthyclock = re.search("\d+:\d+", jam)
     if truthyclock:
         return jam
     else:
@@ -101,7 +107,64 @@ def jamFilter(jam):
 
 
 def tanggalFilter(tanggal):
-    return tanggal
+    now = datetime.datetime.now()
+    tmrw = now + datetime.timedelta(days=1)
+    tmrw2 = now + datetime.timedelta(days=2)
+    nxtwk = now + datetime.timedelta(weeks=1)
+
+    def nextdayinweek(intday, week):
+        dateobj = now + datetime.timedelta(days=-now.weekday() + intday,
+                                           weeks=week)
+        return datetime.datetime.strftime(dateobj, "%d/%m/%Y")
+
+    if (tanggal == "today" or tanggal == "hariini"):
+        tanggal = datetime.datetime.strftime(now, "%d/%m/%Y")
+    elif (tanggal == "tomorrow" or tanggal == "besok"):
+        tanggal = datetime.datetime.strftime(tmrw, "%d/%m/%Y")
+    elif (tanggal == "dayaftertomorrow" or tanggal == "lusa"):
+        tanggal = datetime.datetime.strftime(tmrw2, "%d/%m/%Y")
+    elif (tanggal == "mingdep" or tanggal == "nextweek"):
+        tanggal = datetime.datetime.strftime(nxtwk, "%d/%m/%Y")
+    elif (tanggal == "nextmonday" or tanggal == "nextmon"
+          or tanggal == "senindepan"):
+        tanggal = nextdayinweek(0, 1)
+    elif (tanggal == "nexttuesday" or tanggal == "nexttue"
+          or tanggal == "selasadepan"):
+        tanggal = nextdayinweek(1, 1)
+    elif (tanggal == "nextwednesday" or tanggal == "nextwed"
+          or tanggal == "rabudepan"):
+        tanggal = nextdayinweek(2, 1)
+    elif (tanggal == "nextthursday" or tanggal == "nextthu"
+          or tanggal == "kamisdepan"):
+        tanggal = nextdayinweek(3, 1)
+    elif (tanggal == "nextfriday" or tanggal == "nextfri"
+          or tanggal == "jumatdepan"):
+        tanggal = nextdayinweek(4, 1)
+    elif (tanggal == "nextsaturday" or tanggal == "nextsat"
+          or tanggal == "sabtudepan"):
+        tanggal = nextdayinweek(5, 1)
+    elif (tanggal == "nextsunday" or tanggal == "nextsun" or tanggal == "sun"
+          or tanggal == "minggu"):
+        tanggal = nextdayinweek(6, 1)
+    elif (tanggal == "monday" or tanggal == "mon" or tanggal == "senin"):
+        tanggal = nextdayinweek(0, 0)
+    elif (tanggal == "tuesday" or tanggal == "tue" or tanggal == "selasa"):
+        tanggal = nextdayinweek(1, 0)
+    elif (tanggal == "wednesday" or tanggal == "wed" or tanggal == "rabu"):
+        tanggal = nextdayinweek(2, 0)
+    elif (tanggal == "thursday" or tanggal == "thu" or tanggal == "kamis"):
+        tanggal = nextdayinweek(3, 0)
+    elif (tanggal == "friday" or tanggal == "fri" or tanggal == "jumat"):
+        tanggal = nextdayinweek(4, 0)
+    elif (tanggal == "saturday" or tanggal == "sat" or tanggal == "sabtu"):
+        tanggal = nextdayinweek(5, 0)
+    tanggal = re.sub('\.', '/', tanggal)
+    postgl = re.search('\d+/\d+/\d+',tanggal)
+    if (postgl):
+        return tanggal
+    else:
+        return "ERR"
+
 
 def restart_bot():
     os.execv(sys.executable, ['python'] + sys.argv)
@@ -121,23 +184,29 @@ class Reminder(commands.Cog):
                       description="add new custom reminder")
     async def reminderbf(self, ctx, namatugas, tanggal, jam, tag):
         jam = jamFilter(jam)
-        if(jam == "ERR"):
+        if (jam == "ERR"):
             await ctx.channel.send("salah format jam bro")
             return
         tanggal = tanggalFilter(tanggal)
+        if (tanggal == "ERR"):
+            await ctx.channel.send("salah format tanggal bro")
+            return
         finalstr = dateToStr(tanggal, jam)
         if strToDate(finalstr) < datetime.datetime.now():
             await ctx.channel.send("dah lewat bro")
             return
         if (tag == "me"):
             tag = "<@{}>".format(str(ctx.message.author.id))
+        if tag in rolelist:
+            tag = "<@&{}>".format(rolelist[tag])
         remindobj = [finalstr, namatugas, tag]
         if "reminder" in db.keys():
             dbr = db["reminder"]
             dbr.append(remindobj)
         else:
             db["reminder"] = [remindobj]
-        diff = datetime.datetime.strptime(finalstr, "%d/%m/%Y %H:%M") - datetime.datetime.now()
+        diff = datetime.datetime.strptime(
+            finalstr, "%d/%m/%Y %H:%M") - datetime.datetime.now()
         difd = diff.days
         difs = diff.seconds
         difh = math.floor(difs / 3600)
@@ -146,7 +215,7 @@ class Reminder(commands.Cog):
             deccs = "more than 25 days"
         else:
             difhh = difd * 24 + difh
-            deccs = "{} hour(s) and {} minute(s)".format(difhh,difm)
+            deccs = "{} hour(s) and {} minute(s)".format(difhh, difm)
         await ctx.channel.send("Reminder {} in {} for {}".format(
             namatugas, deccs, tag))
 
@@ -161,13 +230,19 @@ class Reminder(commands.Cog):
                     descc = "There is {} upcoming event".format(counter)
                 else:
                     descc = "There are {} upcoming events".format(counter)
-                embed=discord.Embed(title="Upcoming events", description=descc, color=0x850000)
+                embed = discord.Embed(title="Upcoming events",
+                                      description=descc,
+                                      color=0x850000)
                 for rm in db["reminder"]:
                     yourname = rm[2]
                     if yourname[0] == '<':
                         x = re.split("\@|\>", yourname)
-                        print(x[1])
-                        yourname =  await bot.fetch_user(x[1])
+                        if(x[1][0] == '&'):
+                            print(x[1][1:])
+                            role = get(ctx.guild.roles, id=x[1][1:])
+                            yourname = role
+                        else:
+                            yourname = await bot.fetch_user(x[1])
                     namez = "{} - {}".format(rm[1], yourname)
                     diff = datetime.datetime.strptime(
                         rm[0], "%d/%m/%Y %H:%M") - datetime.datetime.now()
@@ -179,15 +254,19 @@ class Reminder(commands.Cog):
                         deccs = "💤 Due in more than 25 days 💤\n"
                     else:
                         difhh = difd * 24 + difh
-                        if difhh>0:
-                            deccs = "✨ Due in {} hour(s) and {} minute(s)✨\n".format(difhh, difm)
+                        if difhh > 0:
+                            deccs = "✨ Due in {} hour(s) and {} minute(s)✨\n".format(
+                                difhh, difm)
                         else:
-                            deccs = "💢 Due in {} hour(s) and {} minute(s)💢\n".format(difhh, difm)
+                            deccs = "💢 Due in {} hour(s) and {} minute(s)💢\n".format(
+                                difhh, difm)
 
-                    deccs += datetime.datetime.strftime(datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M") + datetime.timedelta(hours=7), "%d/%m/%Y %H:%M")
+                    deccs += datetime.datetime.strftime(
+                        datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M") +
+                        datetime.timedelta(hours=7), "%d/%m/%Y %H:%M")
                     embed.add_field(name=namez, value=deccs, inline=False)
-              
-                await ctx.channel.send(embed = embed)
+
+                await ctx.channel.send(embed=embed)
             else:
                 await ctx.channel.send("There's no reminder at the moment!")
                 await ctx.channel.send(
@@ -210,16 +289,19 @@ class Reminder(commands.Cog):
                 rmdate = db["reminder"][-1][0]
                 rmname = db["reminder"][-1][1]
                 rmtag = db["reminder"][-1][2]
-                timeindo = datetime.datetime.strftime(datetime.datetime.strptime(rmdate, "%d/%m/%Y %H:%M") + datetime.timedelta(hours = 7),"%d/%m/%Y %H:%M")
+                timeindo = datetime.datetime.strftime(
+                    datetime.datetime.strptime(rmdate, "%d/%m/%Y %H:%M") +
+                    datetime.timedelta(hours=7), "%d/%m/%Y %H:%M")
                 if (rmtag == "me"):
                     rmtag = "<@{}>".format(str(ctx.message.author.id))
-                if (rmtag == "everyone"):
-                    rmtag = "@everyone"
+                if (rmtag in rolelist):
+                    rmtag = "<@&{}>".format(rolelist[rmtag])
                 await ctx.channel.send(
                     "Deleting {} reminder for {} at {}".format(
                         rmname, rmtag, timeindo))
                 del db["reminder"][-1]
-                await ctx.channel.send("Deleted! Reminder count: {}".format(len(db["reminder"].value)))
+                await ctx.channel.send("Deleted! Reminder count: {}".format(
+                    len(db["reminder"].value)))
             else:
                 await ctx.channel.send("There's no reminder at the moment!")
                 await ctx.channel.send(
@@ -338,19 +420,25 @@ async def reminder(ctx):
         value="`B$reminder` `reminder_name` `dd/mm/YYYY` `HH:MM` `tags`",
         inline=False)
     em.add_field(name='example',
-                 value="B$reminder do_stuffs {} me".format(
+                 value="B$reminder do_stuffs {} me\nB$reminder zoom_meet tomorrow 7pm me".format(
                      datetime.datetime.strftime(now, "%d/%m/%Y %H:%M")),
                  inline=False)
-    em.add_field(name="Key", value="Registered Channel ID\nRegistered Tags", inline=True)
+    em.add_field(name="Key",
+                 value="Registered Channel ID\nRegistered Tags",
+                 inline=True)
     roleliststr = ""
     for tagsr in rolelist:
-        roleliststr += tagsr + ", "
+        roleliststr += rolelist[tagsr] + ", "
     roleliststr += "me."
-    em.add_field(name="Value", value="{}\n{}".format(channelint, roleliststr), inline=True)
-    em.add_field(name="In progress:", value="Add ability to read 'today', 'tomorrow', and similar datestamp", inline=False)
-    em.set_footer(text="note: midnight is 23:59")
+    em.add_field(name="Value",
+                 value="{}\n{}".format(channelint, roleliststr),
+                 inline=True)
+    em.add_field(
+        name="In progress:",
+        value="Daily alert, lists reminder for the day every morning",
+        inline=False)
+    em.set_footer(text="note: midnight is 23:59, 12pm is invalid=>try 0am")
     await ctx.send(embed=em)
-
 
 
 # Loops/scheduler
@@ -363,6 +451,7 @@ async def remindFunction():
     if "reminder" in db.keys():
         for rm in db["reminder"]:
             roleexist = -1
+            roleid=0
             print(rm[0])
             print(datetime.datetime.strftime(now, "%d/%m/%Y %H:%M"))
             stringrm = rm[0]
@@ -377,20 +466,24 @@ async def remindFunction():
             if strmminus10 == now.strftime("%d/%m/%Y %H:%M"):
                 if rm[2] in rolelist:
                     roleexist = 1
+                    roleid = rolelist[rm[2]]
+
 
                 if roleexist != -1:
-                    await bot.get_channel(channelint).send("tag: @{} ".format(
-                        rm[2]))
+                    await bot.get_channel(channelint).send("tag: <@&{}> ".format(
+                        roleid))
                 await bot.get_channel(channelint).send(
                     "🚨 Hey {} it's 10 minutes to {}. Gotta go fast!".format(
                         rm[2], rm[1]))
             if strhminus1 == now.strftime("%d/%m/%Y %H:%M"):
                 if rm[2] in rolelist:
                     roleexist = 1
+                    roleid = rolelist[rm[2]]
+
 
                 if roleexist != -1:
-                    await bot.get_channel(channelint).send("tag: @{} ".format(
-                        rm[2]))
+                    await bot.get_channel(channelint).send("tag: @<&{}> ".format(
+                        roleid))
                 await bot.get_channel(channelint).send(
                     "Hey {} it's 1 hour to {}.".format(rm[2], rm[1]))
             if rm[0] == now.strftime("%d/%m/%Y %H:%M"):
@@ -399,10 +492,11 @@ async def remindFunction():
                 # TODO: masukin roles manual :v
                 if rm[2] in rolelist:
                     roleexist = 1
+                    roleid = rolelist[rm[2]]
 
                 if roleexist != -1:
                     await bot.get_channel(channelint).send("tag: @{} ".format(
-                        rm[2]))
+                        roleid))
                 await bot.get_channel(channelint).send(
                     "Hey {} it's time to {}.".format(rm[2], rm[1]))
 
