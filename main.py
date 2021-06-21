@@ -23,10 +23,6 @@ intents = discord.Intents.default()
 intents.presences = True
 intents.members = True
 
-#manual :v
-rolelist = {
-    "everyone": "855703085825785856",
-    "fooRole": "855791882834280478"}
 
 activity = discord.Game(name="B$help")
 
@@ -41,6 +37,10 @@ bot = commands.Bot(commands.when_mentioned_or('B$'),
 
 bot.remove_command("help")
 
+
+#manual :v
+rolelist = {
+    "fooRole": "855791882834280478"}
 
 # FUNCTIONS
 def getQuote():
@@ -78,6 +78,8 @@ def dailyReminder():
                 therm = datetime.datetime.strftime(rmobj + datetime.timedelta(hours = 7), "%d/%m/%Y")
                 if therm == instr:
                     yourname = rm[2]
+                    if yourname == "@everyone":
+                        yourname = "everyone"
                     if yourname[0] == '<':
                         x = re.split("\@|\>", yourname)
                         if(x[1][0] == '&'):
@@ -86,7 +88,7 @@ def dailyReminder():
                                     yourname = ky
                         else:
                             yourname = rm[3]
-                    embed.add_field(name="{} - {}".format(rm[1],yourname), value = stringUtcToGmt(rm[0]), inline = False)
+                    embed.add_field(name="{} - {}".format(rm[1],yourname), value = stringUtcToGmt(rm[0])[11:], inline = False)
         else:
             embed=discord.Embed(title="Today's REMINDER", description = "No upcoming events for today")
     else:
@@ -238,6 +240,8 @@ class Reminder(commands.Cog):
             return
         if (tag == "me"):
             tag = "<@{}>".format(str(ctx.message.author.id))
+        if tag == "everyone":
+            tag = "@everyone"
         if tag in rolelist:
             tag = "<@&{}>".format(rolelist[tag])
             # DB HERE
@@ -277,6 +281,8 @@ class Reminder(commands.Cog):
                                       color=0x850000)
                 for rm in db["reminder"]:
                     yourname = rm[2]
+                    if yourname =="@everyone":
+                        yourname = "everyone"
                     if yourname[0] == '<':
                         x = re.split("\@|\>", yourname)
                         if(x[1][0] == '&'):
@@ -336,6 +342,8 @@ class Reminder(commands.Cog):
                     datetime.timedelta(hours=7), "%d/%m/%Y %H:%M")
                 if (rmtag == "me"):
                     rmtag = "<@{}>".format(str(ctx.message.author.id))
+                if rmtag == "everyone":
+                    rmtag = "@everyone"
                 if (rmtag in rolelist):
                     rmtag = "<@&{}>".format(rolelist[rmtag])
                 await ctx.channel.send(
@@ -561,8 +569,8 @@ async def remindFunction():
 async def dailyQuotes():
     print('getting quotes...')
     now = datetime.datetime.now()
-    sixaclock = now.replace(hour=5, minute=0, second=0, microsecond=0)
-    sevenaclock = now.replace(hour=6, minute=0, second=0, microsecond=0)
+    sixaclock = now.replace(hour=21, minute=0, second=0, microsecond=0)
+    sevenaclock = now.replace(hour=22, minute=0, second=0, microsecond=0)
     if (now < sevenaclock and now > sixaclock):
         em = dailyReminder()
         await bot.get_channel(channelint).send(embed = em)
