@@ -51,10 +51,41 @@ def getQuote():
 def todaysQuote():
     response = requests.get("https://zenquotes.io/api/today")
     json_data = json.loads(response.text)
-    quote = "Good Morning! Here's a quote to start the day.\n\n> *" + json_data[
-        0]['q'] + "*" + " \n\n-" + json_data[0]['a']
-    return (quote)
+    quote = json_data[
+        0]['q'] + " \n\n-" + json_data[0]['a']
+    embed=discord.Embed(description="{}".format(quote),color=0xff4000)
+    return (embed)
 
+def todaysWeather():
+    response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat=-6.915439850489121&lon=107.59349662423351&exclude=hourly,minutely&units=metric&appid=7f21efc3bc3d18d7afe91adcde35f8fe")
+    json_data = json.loads(response.text)
+    today = json_data["daily"][0]
+    cloudiness = today["clouds"]
+    pop = today["pop"]
+    pop = pop*100
+    feelslike = today["feels_like"]
+    uvi = today["uvi"]
+    unix = today["dt"]
+    flmorn = feelslike["morn"]
+    flday = feelslike["day"]
+    fleve = feelslike["eve"]
+    flnight = feelslike["night"]
+    tmpmax = today["temp"]["max"]
+    tmpmin = today["temp"]["min"]
+    mainw = today["weather"][0]["main"]
+    desc = today["weather"][0]["description"]
+    icon = today["weather"][0]["icon"]
+    hum = today["humidity"]
+    uvi = today["uvi"]
+    embed=discord.Embed(title="{}".format(mainw), description="{} with {}% probability of precipitation".format(desc,pop),color=0x20c9df)
+    embed.set_author(name="Today's Weather")
+    embed.set_thumbnail(url="http://openweathermap.org/img/wn/{}@2x.png".format(icon))
+    embed.add_field(name="Cloudiness", value="Humidity\nMax UV index\nMax Temp\nMin Temp", inline=True)
+    embed.add_field(name="{}%".format(cloudiness), value="{}%\n{}\n{}°C\n{}°C".format(uvi,hum,tmpmax,tmpmin), inline=True)
+    unixint = int(unix)
+    utcstr = datetime.datetime.utcfromtimestamp(unixint).strftime("%d %b %y at %H:%M")
+    embed.set_footer(text="Ts: {}".format(utcstr))
+    return embed
 
 #embed=discord.Embed(title="We have {} reminder(s) today")
 # embed.set_author(name="TODAYS REMINDER")
@@ -83,8 +114,8 @@ def dailyReminder(htoplus):
                     ct += 1
             embed = discord.Embed(
                 title="{}'s reminder".format(tplx),
-                description="We have {} reminder(s) {}".format(ct,tpll),
-                color=0x43b8ea)
+                description="We have {} reminder(s) {}.".format(ct,tpll),
+                color=0x99ff00)
             for rm in db["reminder"]:
                 rmobj = datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M")
                 therm = datetime.datetime.strftime(
@@ -106,10 +137,10 @@ def dailyReminder(htoplus):
                                     inline=False)
         else:
             embed = discord.Embed(title="{}'s REMINDER".format(tplx),
-                                  description="No upcoming events for {}".format(tpll))
+                                  description="No upcoming events for {}.".format(tpll),color=0x99ff00)
     else:
         embed = discord.Embed(title="{}'s REMINDER".format(tplx),
-                              description="No upcoming events for {}".format(tpll))
+                              description="No upcoming events for {}.".format(tpll),color=0x99ff00)
     return embed
 
 
@@ -168,7 +199,7 @@ def jamFilter(jam):
 
 
 def tanggalFilter(tanggal):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now() + datetime.timedelta(hours = 7)
     tmrw = now + datetime.timedelta(days=1)
     tmrw2 = now + datetime.timedelta(days=2)
     nxtwk = now + datetime.timedelta(weeks=1)
@@ -405,13 +436,16 @@ async def restartbf(ctx):
 
 @bot.command(name="testdailyquote")
 async def inspiretodaybf(ctx):
-    await ctx.channel.send(todaysQuote())
+    await ctx.channel.send(embed = todaysQuote())
 
 
 @bot.command(name="inspire", brief="inspiration +99")
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
+@bot.command(name="weathertoday")
+async def wtodaybf(ctx):
+    await ctx.channel.send(embed =todaysWeather())
 
 # ----
 
@@ -486,7 +520,7 @@ async def help(ctx):
     embed.add_field(name="Reminder",
                     value="B$reminder\nB$listreminder\nB$listtoday\nB$listtomorrow\nB$undoreminder",
                     inline=False)
-    embed.add_field(name="Other", value="B$inspire\nB$restart", inline=False)
+    embed.add_field(name="Other", value="B$weathertoday\nB$inspire\nB$restart", inline=False)
     embed.set_footer(text="Try `B$help reminder` to add a new reminder ")
     await ctx.send(embed=embed)
 
@@ -512,8 +546,8 @@ async def reminder(ctx):
         roleliststr += rolelist[tagsr] + ", "
     roleliststr += "everyone, me."
     em.add_field(name="Value", value="{}".format(channelint), inline=True)
-    em.add_field(name="In progress:", value="Tinggal pake", inline=False)
-    em.set_footer(text="note: midnight is 23:59, 12pm is invalid=>try 0am")
+    em.add_field(name="In progress:", value="idk mo nambah fitur ap lagi", inline=False)
+    em.set_footer(text="note: midnight is 23:59 but 12pm is invalid so try 0am")
     await ctx.send(embed=em)
 
 
@@ -586,8 +620,9 @@ async def dailyQuotes():
     sevenaclock = now.replace(hour=22, minute=0, second=0, microsecond=0)
     if (now < sevenaclock and now > sixaclock):
         em = dailyReminder(7)
+        await bot.get_channel(channelint).send(embed=todaysWeather())
         await bot.get_channel(channelint).send(embed=em)
-        await bot.get_channel(channelint).send(todaysQuote())
+        await bot.get_channel(channelint).send(embed = todaysQuote())
 
 
 #-6.915055499431372, 107.59463161394709
