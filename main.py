@@ -1,8 +1,6 @@
 from emoji import UNICODE_EMOJI
-import cog
 import sys
 from replit import db
-import abc
 from keep_alive import keep_alive
 import discord
 from discord.utils import get
@@ -16,7 +14,8 @@ import datetime
 import re
 import asyncio
 from discord.ext import commands, tasks
-from pretty_help import PrettyHelp
+
+# BUG tagged as #broken
 
 channelint = 855477991600422926
 
@@ -26,8 +25,8 @@ intents.members = True
 
 #manual :v
 rolelist = {
-    "everyone": 855703085825785856,
-    "fooRole": 856154814303436820}
+    "everyone": "855703085825785856",
+    "fooRole": "855791882834280478"}
 
 activity = discord.Game(name="B$help")
 
@@ -58,15 +57,57 @@ def todaysQuote():
         0]['q'] + "*" + " \n\n-" + json_data[0]['a']
     return (quote)
 
+#embed=discord.Embed(title="We have {} reminder(s) today")
+# embed.set_author(name="TODAYS REMINDER")
+# embed.add_field(name="name", value="val", inline=False)
+# await ctx.send(embed=embed)
 
-def dateToStr(datestr, timestr):  # accepts d/m/Y and H:M
-    # Fungsi ini buat timezone WIB GMT+7!
+    
+def dailyReminder():
+    now = datetime.datetime.now()
+    instr = datetime.datetime.strftime(now + datetime.timedelta(hours = 7), "%d/%m/%Y")
+    if "reminder" in db.keys():
+        ct = 0
+        if db["reminder"]:
+            for rm in db["reminder"]:
+                if rm[0][0:10] == instr:
+                    ct +=1
+            embed=discord.Embed(title="Today's reminder",description="We have {} reminder(s) today".format(ct),color=0x43b8ea)
+            for rm in db["reminder"]:
+                rmobj = datetime.datetime.strptime(rm[0], "%d/%m/%Y %H:%M")
+                therm = datetime.datetime.strftime(rmobj + datetime.timedelta(hours = 7), "%d/%m/%Y")
+                if therm == instr:
+                    yourname = rm[2]
+                    if yourname[0] == '<':
+                        x = re.split("\@|\>", yourname)
+                        if(x[1][0] == '&'):
+                            for ky in rolelist:
+                                if rolelist[ky] == x[1][1:]:
+                                    yourname = ky
+                        else:
+                            yourname = rm[3]
+                    embed.add_field(name="{} - {}".format(rm[1],yourname), value = stringUtcToGmt(rm[0]), inline = False)
+        else:
+            embed=discord.Embed(title="Today's REMINDER", description = "No upcoming events for today")
+    else:
+        embed=discord.Embed(title="Today's REMINDER", description = "No upcoming events for today")
+    return embed
+
+
+def stringDateCombine(datestr, timestr):  # accepts d/m/Y and H:M
+    # Fungsi ini buat timezone WIB GMT+7 ke UTC
     dateint = datetime.datetime.strptime(datestr, "%d/%m/%Y")
     timeint = datetime.datetime.strptime(timestr, "%H:%M")
     dateobj = dateint + datetime.timedelta(hours=timeint.hour - 7,
                                            minutes=timeint.minute)
     dateobjtostr = datetime.datetime.strftime(dateobj, "%d/%m/%Y %H:%M")
     return dateobjtostr
+
+def stringUtcToGmt(utcstr):
+    gmtdate = datetime.datetime.strptime(utcstr, "%d/%m/%Y %H:%M") + datetime.timedelta(hours = 7)
+    gmtstr = datetime.datetime.strftime(gmtdate,"%d/%m/%Y %H:%M")
+    return gmtstr
+
 
 
 def strToDate(strdate):
@@ -191,7 +232,7 @@ class Reminder(commands.Cog):
         if (tanggal == "ERR"):
             await ctx.channel.send("salah format tanggal bro")
             return
-        finalstr = dateToStr(tanggal, jam)
+        finalstr = stringDateCombine(tanggal, jam)
         if strToDate(finalstr) < datetime.datetime.now():
             await ctx.channel.send("dah lewat bro")
             return
@@ -199,7 +240,8 @@ class Reminder(commands.Cog):
             tag = "<@{}>".format(str(ctx.message.author.id))
         if tag in rolelist:
             tag = "<@&{}>".format(rolelist[tag])
-        remindobj = [finalstr, namatugas, tag]
+            # DB HERE
+        remindobj = [finalstr, namatugas, tag, str(ctx.message.author.name)]
         if "reminder" in db.keys():
             dbr = db["reminder"]
             dbr.append(remindobj)
@@ -238,9 +280,9 @@ class Reminder(commands.Cog):
                     if yourname[0] == '<':
                         x = re.split("\@|\>", yourname)
                         if(x[1][0] == '&'):
-                            print(x[1][1:])
-                            role = get(ctx.guild.roles, id=x[1][1:])
-                            yourname = role
+                            for ky in rolelist:
+                                if rolelist[ky] == x[1][1:]:
+                                    yourname = ky
                         else:
                             yourname = await bot.fetch_user(x[1])
                     namez = "{} - {}".format(rm[1], yourname)
@@ -325,10 +367,18 @@ async def restartbf(ctx):
     await ctx.channel.send("Please wait...")
     restart_bot()
 
+@bot.command(name="testdailyquote")
+async def inspiretodaybf(ctx):
+    await ctx.channel.send(todaysQuote())
 
 @bot.command(name="inspire", brief="inspiration +99")
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
+
+@bot.command(name ="testdailyreminder")
+async def testdailyreminderbf(ctx):
+    
+    await ctx.channel.send(embed = dailyReminder())
 
 
 bot.add_cog(Reminder(bot))
@@ -373,7 +423,7 @@ async def on_message(message):
     # Reset Reminder
     if msg.startswith('B$resetreminder'):
         channel = message.channel
-        await channel.send('u sure mate? yes/no')
+        await channel.send('u sure mate? enter `yes`')
 
         def check(m):
             return m.content == 'yes' and m.channel == channel
@@ -393,7 +443,7 @@ async def on_message(message):
 async def help(ctx):
     embed = discord.Embed(
         title="Join our Discord",
-        url="https://github.com/danzel-py/BruhBot5555",
+        url="https://discord.gg/B6JRWgbf",
         description=
         "This bot is still on development, we need more feature ideas",
         color=0x43b8ea)
@@ -424,18 +474,18 @@ async def reminder(ctx):
                      datetime.datetime.strftime(now, "%d/%m/%Y %H:%M")),
                  inline=False)
     em.add_field(name="Key",
-                 value="Registered Channel ID\nRegistered Tags",
+                 value="Registered Channel ID",
                  inline=True)
-    roleliststr = ""
-    for tagsr in rolelist:
-        roleliststr += rolelist[tagsr] + ", "
-    roleliststr += "me."
+    # roleliststr = ""
+    # for tagsr in rolelist:
+    #     roleliststr += rolelist[tagsr] + ", "
+    # roleliststr += "me."
     em.add_field(name="Value",
-                 value="{}\n{}".format(channelint, roleliststr),
+                 value="{}".format(channelint),
                  inline=True)
     em.add_field(
         name="In progress:",
-        value="Daily alert, lists reminder for the day every morning",
+        value="Tinggal pake",
         inline=False)
     em.set_footer(text="note: midnight is 23:59, 12pm is invalid=>try 0am")
     await ctx.send(embed=em)
@@ -511,11 +561,15 @@ async def remindFunction():
 async def dailyQuotes():
     print('getting quotes...')
     now = datetime.datetime.now()
-    sixaclock = now.replace(hour=22, minute=0, second=0, microsecond=0)
-    sevenaclock = now.replace(hour=23, minute=0, second=0, microsecond=0)
+    sixaclock = now.replace(hour=5, minute=0, second=0, microsecond=0)
+    sevenaclock = now.replace(hour=6, minute=0, second=0, microsecond=0)
     if (now < sevenaclock and now > sixaclock):
+        em = dailyReminder()
+        await bot.get_channel(channelint).send(embed = em)
         await bot.get_channel(channelint).send(todaysQuote())
 
+
+#-6.915055499431372, 107.59463161394709
 
 my_secret = os.environ['TOKEN']
 
