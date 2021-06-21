@@ -37,6 +37,7 @@ Sends message to designated channel for each deadline on hour-1, minute-5, and o
 
   - `B$inspire` : sends a random quote
   - `B$hello` : ya gitu
+  - Ngirim daily message tiap pagi, isinya today's reminder sama qotd
 
 ## TODO:
 
