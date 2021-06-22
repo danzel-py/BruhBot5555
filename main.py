@@ -14,6 +14,7 @@ import datetime
 import re
 import asyncio
 from discord.ext import commands, tasks
+from tabulate import tabulate
 
 # BUG tagged as #broken
 
@@ -84,9 +85,40 @@ def todaysWeather():
     embed.add_field(name="{}%".format(cloudiness), value="{}%\n{}\n{}°C\n{}°C".format(uvi,hum,tmpmax,tmpmin), inline=True)
     unixint = int(unix)
     utcstr = datetime.datetime.utcfromtimestamp(unixint).strftime("%d %b %y at %H:%M")
-    embed.set_footer(text="Ts: {}".format(utcstr))
+    embed.set_footer(text="Ts: {}\nLoc: Binus Bandung".format(utcstr))
     return embed
 
+def tablerFunction(msg):
+    cmd =  msg.split('\n')[0]
+    param1 = cmd.split(' ')
+    header = False
+    number = False
+    width = 0
+    for x in param1:
+        if(x == "header"):
+            header = True
+        elif(x == "number"):
+            number = True
+        elif(re.match("[0-9]+",x)):
+            width = int(x)
+    linebyline = msg.split('\n')[1:]
+    for i in range(len(linebyline)):
+        linebyline[i] = linebyline[i].split('-')
+    ix = 0
+    width = min(width,30)
+    if width != 0:
+        
+        linebyline[ix][0] = f'{linebyline[ix][0]: <{width}}⠀'
+    headeropt = ""
+    if(header):
+        headeropt = "firstrow"
+    
+    return tabulate(linebyline,headers=headeropt,showindex=number,tablefmt="fancy_grid",)
+    
+    
+
+print(tablerFunction("B$table number header 20\nkey1-value1\nkey2-value2\nkey3-value3"))
+    
 #embed=discord.Embed(title="We have {} reminder(s) today")
 # embed.set_author(name="TODAYS REMINDER")
 # embed.add_field(name="name", value="val", inline=False)
@@ -501,6 +533,10 @@ async def on_message(message):
         else:
             await channel.send("Already empty")
 
+    # tabler
+    if msg.startswith('B$table'):
+        content = message.content
+        await message.channel.send("```"+tablerFunction(content)+"```")
 # -----
 
 # help Command
@@ -517,11 +553,11 @@ async def help(ctx):
         name="See Github Repo",
         url="https://github.com/danzel-py/BruhBot5555",
         icon_url="https://i.ibb.co/RzQzcMr/Git-Hub-Mark-120px-plus.png")
-    embed.add_field(name="Reminder",
-                    value="B$reminder\nB$listreminder\nB$listtoday\nB$listtomorrow\nB$undoreminder",
-                    inline=False)
-    embed.add_field(name="Other", value="B$weathertoday\nB$inspire\nB$restart", inline=False)
-    embed.set_footer(text="Try `B$help reminder` to add a new reminder ")
+    embed.add_field(name="Reminder",value="B$reminder\nB$listreminder\nB$listtoday\nB$listtomorrow\nB$undoreminder",                inline=False)
+    embed.add_field(name="Table",value="B$table",                inline=False)
+    embed.add_field(name="Weather",value="B$weathertoday",                inline=False)
+    embed.add_field(name="Other", value="B$inspire\nB$restart", inline=False)
+    embed.set_footer(text="Try `B$help reminder` to add a new reminder")
     await ctx.send(embed=embed)
 
 
