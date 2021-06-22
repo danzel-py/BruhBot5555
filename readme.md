@@ -8,28 +8,82 @@ last update : June 20th 2021
 
 ### 1. Reminder Deadline Tugas
 
+
 Sends message to designated channel for each deadline on hour-1, minute-5, and on time.
 
 
-  help:
+#### help:
     
     B$help reminder
 
-  New Reminder:
+#### New Reminder:
 
-    B$reminder (nama_tugas) (dd/mm/yyyy) (HH:MM) (role_name)
+    B$reminder (reminder_name) (date) (time) (tags)
 
-  Contoh:
-      
-    B$reminder PRLinearAlgebraWeek1 02/02/2022 23:00 everyone
-  tags: role(everyone, Admin, dll) , me.    
+examples:   
+
+    B$reminder PRLinearAlgebraWeek1 02/02/2022 23:00 Kelas1
+    B$reminder EnglishQuiz nextwed 4pm everyone
+    B$reminder kick_all_member selasa 12.30 Admin
+    B$reminder updateReadme today 8.50pm me 
+    
++ tags: role (everyone, Admin, dll) , me.
+
+#### Show Reminder Lists:
+
+    B$listtoday
+    B$listtomorrow
+    B$listreminder
+
+#### Undo Add Reminder:
+
+Deletes last reminder entry
+    
+    B$undoreminder
 
   
-  
-    
-    
+### 2. Other 
 
-###  Misc.
+#### Weather
+Show today's weather (brief)
+
+    B$weathertoday
+    
+#### Table
+Creates table with `-` separator
+
+    B$table (*optional)
+Optional arguments:
+- `number`, shows indices
+- `header`, makes first row as Header
+- First col width in integer
+
+example:
+
+- Create a table with header, indices, and width 10 characters
+
+        input:
+
+        B$table 10 header number
+        Ingredient-Quantity
+        Flour-5 to 6 cups
+        Salt-½ tsp
+        Sugar-½ cups
+
+        output:
+
+        ╒════╤═════════════════╤═════════════╕
+        │    │   Ingredient⠀   │ Quantity    │
+        ╞════╪═════════════════╪═════════════╡
+        │  0 │ Flour           │ 5 to 6 cups │
+        ├────┼─────────────────┼─────────────┤
+        │  1 │ Salt            │ ½ tsp       │
+        ├────┼─────────────────┼─────────────┤
+        │  2 │ Sugar           │ ½ cups      │
+        ╘════╧═════════════════╧═════════════╛
+
+
+####  Misc.
 
   Keyword nya `B$` gatau ntar ganti ato gimana
 
@@ -37,16 +91,12 @@ Sends message to designated channel for each deadline on hour-1, minute-5, and o
 
   - `B$inspire` : sends a random quote
   - `B$hello` : ya gitu
-  - Ngirim daily message tiap pagi, isinya today's reminder sama qotd
 
 ## TODO:
 
 ### 1. Reminder Deadline Tugas
 
   - ~~Need fancy command names~~
-  - Daily reminder, ngasih tau apa aja yang deadlinenya hari ini
-    + B$listtoday
-    + B$listtomorrow
   - Minta admin bikin role kelas maybe
 
 ## Features - TOADD:
@@ -67,7 +117,5 @@ Sends message to designated channel for each deadline on hour-1, minute-5, and o
 
     - input jadwal kuliah  ke DB nya
 
-### 99. Ide gabut
-  - bikin tabler, input list output rapih
-  - weather info, gabungin sama jadwal kuliah? (ez API)
+
   
