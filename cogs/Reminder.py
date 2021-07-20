@@ -4,8 +4,9 @@ import math
 import datetime
 import re
 from discord.ext import commands
-from functions.reminderfun import jamFilter,tanggalFilter,stringDateCombine,strToDate,dailyReminder
+from functions.reminderfun import jamFilter, tanggalFilter, stringDateCombine, strToDate, dailyReminder
 from constants import rolelist
+
 
 class Reminder(commands.Cog):
     # everyone: 855701462793453578
@@ -119,13 +120,13 @@ class Reminder(commands.Cog):
             await ctx.channel.send("B$reminder nama_tugas {} me".format(
                 datetime.datetime.strftime(now, "%d/%m/%Y %H:%M")))
 
-    @commands.command(name ="listtomorrow")
-    async def listtomorrowbf(self,ctx):
-        await ctx.channel.send(embed=dailyReminder(7+24))
-    @commands.command(name ="listtoday")
-    async def listtodaybf(self,ctx):
-        await ctx.channel.send(embed=dailyReminder(7))
+    @commands.command(name="listtomorrow")
+    async def listtomorrowbf(self, ctx):
+        await ctx.channel.send(embed=dailyReminder(7 + 24))
 
+    @commands.command(name="listtoday")
+    async def listtodaybf(self, ctx):
+        await ctx.channel.send(embed=dailyReminder(7))
 
     @commands.command(name="undoreminder")
     async def undoreminderbf(self, ctx):

@@ -1,5 +1,7 @@
 # CS-B25 Discord Bot
-last update : June 20th 2021
+last update : July 20th 2021
+
+new : get new ig posts
 ## Features Available:
 
 ### 0. B$help
@@ -41,8 +43,10 @@ Deletes last reminder entry
     
     B$undoreminder
 
-  
-### 2. Other 
+### 2. Info Binus
+  - Get new post from binus_bandung's instagram   
+
+### 3. Other 
 
 #### Weather
 Show today's weather (brief)
@@ -99,17 +103,13 @@ example:
   - ~~Need fancy command names~~
   - Minta admin bikin role kelas maybe
 
+### 2. Info Binus
+  - Create ig user lists to fetch posts from (currently only binus_bandung)
+
 ## Features - TOADD:
 
-### 1. Info Binus
 
-  - ~~Cari/Bikin API instagram post grabber~~ maap susah
-    - ~~Pake keywoard buat nyaring info tertentu~~ API nya juga gaada
-  - ide sad: kaya b25 gabungan, bot nya ngirim embed manual
-    - Q: siapa yg mo ngurus
-
-
-### 2. Reminder Jadwal Kuliah (daily tiap pagi)
+### 1. Reminder Jadwal Kuliah (blm yakin guna ato ga)
 
   - tfw blom dapet jadwal kuliah
 
@@ -118,4 +118,3 @@ example:
     - input jadwal kuliah  ke DB nya
 
 
-  

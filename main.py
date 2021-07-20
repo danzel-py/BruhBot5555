@@ -3,14 +3,14 @@ from replit import db
 from keep_alive import keep_alive
 import sys
 import os
-import math
 import datetime
-from discord.ext import commands, tasks
-from functions.reminderfun import *
-from functions.tablerfun import *
-from functions.weatherquotefun import *
-from commands.Reminder import Reminder
-from constants import rolelist,channelint,botactivity,botstatus,botintents,bot
+from discord.ext import tasks
+from functions.reminderfun import dailyReminder, strToDate
+from functions.tablerfun import tablerFunction
+from functions.weatherquotefun import todaysQuote, todaysWeather, getQuote
+from functions.instagramfun import getNewPost
+from cogs.Reminder import Reminder
+from constants import rolelist, channelint, bot
 # from emoji import UNICODE_EMOJI
 # from discord.utils import get
 # import asyncio
@@ -19,11 +19,12 @@ from constants import rolelist,channelint,botactivity,botstatus,botintents,bot
 
 # FUNCTIONS
 
+
 def restart_bot():
     os.execv(sys.executable, ['python'] + sys.argv)
 
-# ----
 
+# ----
 
 # COMMAND: REMINDER
 
@@ -41,16 +42,18 @@ async def restartbf(ctx):
 
 @bot.command(name="testdailyquote")
 async def inspiretodaybf(ctx):
-    await ctx.channel.send(embed = todaysQuote())
+    await ctx.channel.send(embed=todaysQuote())
 
 
 @bot.command(name="inspire", brief="inspiration +99")
 async def inspirebf(ctx):
     await ctx.channel.send(getQuote())
 
+
 @bot.command(name="weathertoday")
 async def wtodaybf(ctx):
-    await ctx.channel.send(embed =todaysWeather())
+    await ctx.channel.send(embed=todaysWeather())
+
 
 # ----
 
@@ -62,6 +65,7 @@ async def on_ready():
         print(db["reminder"])
     remindFunction.start()
     dailyQuotes.start()
+    igUpdate.start()
     print('We have logged in as {0.user}'.format(bot))
     # Channel ID goes here
     await bot.get_channel(channelint).send(
@@ -69,6 +73,7 @@ async def on_ready():
 
 
 # ON MESSAGE
+
 
 @bot.event
 async def on_message(message):
@@ -82,16 +87,15 @@ async def on_message(message):
     if msg.startswith("getfoo"):
         memid = message.author.id
         membr = message.guild.get_member(memid)
-        foorole = discord.utils.get(message.guild.roles, name = "fooRole")
+        foorole = discord.utils.get(message.guild.roles, name="fooRole")
         await membr.add_roles(foorole)
         await message.channel.send("Assigned fooRole to {}".format(membr))
     if msg.startswith("delfoo"):
         memid = message.author.id
         membr = message.guild.get_member(memid)
-        foorole = discord.utils.get(message.guild.roles, name = "fooRole")
+        foorole = discord.utils.get(message.guild.roles, name="fooRole")
         await membr.remove_roles(foorole)
         await message.channel.send("Deleted fooRole from {}".format(membr))
-
 
     if msg.startswith(('thanks bot', 'Thanks bot', 'Thanks Bot')):
         await message.channel.send('Your Welcome, 御主人様!')
@@ -102,12 +106,14 @@ async def on_message(message):
     # Reset Reminder
     if msg.startswith('B$resetreminder'):
         channel = message.channel
-        await channel.send('Will delete all queries in database. Please enter `yes` in 5s to confirm')
+        await channel.send(
+            'Will delete all queries in database. Please enter `yes` in 5s to confirm'
+        )
 
         def check(m):
             return m.content == 'yes' and m.channel == channel
 
-        henji = await bot.wait_for('message', check=check, timeout = 6.0)
+        henji = await bot.wait_for('message', check=check, timeout=6.0)
         henji = henji
         if "reminder" in db.keys():
             cont = len(db["reminder"].value)
@@ -119,10 +125,13 @@ async def on_message(message):
     # tabler
     if msg.startswith('B$table'):
         content = message.content
-        await message.channel.send("```"+tablerFunction(content)+"```")
+        await message.channel.send("```" + tablerFunction(content) + "```")
+
+
 # -----
 
 # help Command
+
 
 @bot.group(invoke_without_command=True)
 async def help(ctx):
@@ -136,9 +145,13 @@ async def help(ctx):
         name="See Github Repo",
         url="https://github.com/danzel-py/BruhBot5555",
         icon_url="https://i.ibb.co/RzQzcMr/Git-Hub-Mark-120px-plus.png")
-    embed.add_field(name="Reminder",value="B$reminder\nB$listreminder\nB$listtoday\nB$listtomorrow\nB$undoreminder",                inline=False)
-    embed.add_field(name="Table",value="B$table",                inline=False)
-    embed.add_field(name="Weather",value="B$weathertoday",                inline=False)
+    embed.add_field(
+        name="Reminder",
+        value=
+        "B$reminder\nB$listreminder\nB$listtoday\nB$listtomorrow\nB$undoreminder",
+        inline=False)
+    embed.add_field(name="Table", value="B$table", inline=False)
+    embed.add_field(name="Weather", value="B$weathertoday", inline=False)
     embed.add_field(name="Other", value="B$inspire\nB$restart", inline=False)
     embed.set_footer(text="Try `B$help reminder` to add a new reminder")
     await ctx.send(embed=embed)
@@ -165,8 +178,11 @@ async def reminder(ctx):
         roleliststr += rolelist[tagsr] + ", "
     roleliststr += "everyone, me."
     em.add_field(name="Value", value="{}".format(channelint), inline=True)
-    em.add_field(name="In progress:", value="idk mo nambah fitur ap lagi", inline=False)
-    em.set_footer(text="note: midnight is 23:59 but 12pm is invalid so try 0am")
+    em.add_field(name="In progress:",
+                 value="idk mo nambah fitur ap lagi",
+                 inline=False)
+    em.set_footer(
+        text="note: midnight is 23:59 but 12pm is invalid so try 0am")
     await ctx.send(embed=em)
 
 
@@ -175,7 +191,7 @@ async def reminder(ctx):
 # ucb everyone: 855703085825785856
 @tasks.loop(minutes=1)
 async def remindFunction():
-    print('letscheck')
+    print('checking reminder...')
     now = datetime.datetime.now()
     if "reminder" in db.keys():
         for rm in db["reminder"]:
@@ -230,6 +246,20 @@ async def remindFunction():
     else:
         return
 
+@tasks.loop(minutes = 5)
+async def igUpdate():
+    Robj = getNewPost('binus_bandung',os.environ['igsid'])
+    if(Robj):
+        post_type = 'image'
+        if Robj['is_video']:
+            post_type = 'video'
+
+        em=discord.Embed(title="See original post in instagram", url = Robj['post_url'],description="binus_bandung has just posted a new {}!".format(post_type))
+        em.set_image(url=Robj['display_url'])
+        print(Robj)
+        em.set_footer(text="posted: {}\nfetched: {}".format((Robj['taken_at_timestamp']+datetime.timedelta(hours=7)).strftime("%d-%m-%Y %H:%M:%S"),(datetime.datetime.now() + datetime.timedelta(hours = 7)).strftime("%d-%m-%Y %H:%M:%S")))
+        await bot.get_channel(channelint).send(embed = em)
+    
 
 @tasks.loop(hours=1)
 async def dailyQuotes():
@@ -241,7 +271,7 @@ async def dailyQuotes():
         em = dailyReminder(7)
         await bot.get_channel(channelint).send(embed=todaysWeather())
         await bot.get_channel(channelint).send(embed=em)
-        await bot.get_channel(channelint).send(embed = todaysQuote())
+        await bot.get_channel(channelint).send(embed=todaysQuote())
 
 
 #-6.915055499431372, 107.59463161394709
