@@ -46,5 +46,5 @@ def todaysWeather():
     embed.add_field(name="{}%".format(cloudiness), value="{}%\n{}\n{}°C\n{}°C".format(uvi,hum,tmpmax,tmpmin), inline=True)
     unixint = int(unix)
     utcstr = datetime.datetime.utcfromtimestamp(unixint).strftime("%d %b %y at %H:%M")
-    embed.set_footer(text="Ts: {}\nLoc: Binus Bandung".format(utcstr))
+    embed.set_footer(text="Ts: {}\n@Binus Bandung".format(utcstr))
     return embed

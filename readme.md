@@ -1,7 +1,7 @@
 # CS-B25 Discord Bot
-last update : July 20th 2021
+last update : July 204th 2021
 
-new : get new ig posts
+fix: multiple dailyQuotes() sent
 ## Features Available:
 
 ### 0. B$help

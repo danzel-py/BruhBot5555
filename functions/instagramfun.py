@@ -27,8 +27,8 @@ def getNewPost(uname, session_id):
                 print("no new post")
     except HTTPError:
         print("failed getting ig profile")
-    except:
-        print("some error occurred (not sid) on getting profile")
+    # except:
+    #     print("some error occurred (not sid) on getting profile")
 
     # try:
     #     post = InstagramPost(newest.shortcode,sessionid= session_id)
