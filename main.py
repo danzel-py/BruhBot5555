@@ -10,7 +10,7 @@ from functions.tablerfun import tablerFunction
 from functions.weatherquotefun import todaysQuote, todaysWeather, getQuote
 from functions.instagramfun import getNewPost
 from cogs.Reminder import Reminder
-from constants import rolelist, channelint, bot
+from constants import rolelist, channelint, bot, igUsernames
 # from emoji import UNICODE_EMOJI
 # from discord.utils import get
 # import asyncio
@@ -249,20 +249,25 @@ async def remindFunction():
 @tasks.loop(hours = 1)
 async def igUpdate():
     now = datetime.datetime.now()
-    sixaclock = now.replace(hour=7, minute=0, second=0, microsecond=0)
-    sevenaclock = now.replace(hour=8, minute=0, second=0, microsecond=0)
-    if (now < sevenaclock and now > sixaclock):
-        Robj = getNewPost('binus_bandung',os.environ['igsid'])
-        if(Robj):
-            post_type = 'image'
-            if Robj['is_video']:
-                post_type = 'video'
+    onepm = now.replace(hour=6, minute=0, second=0, microsecond=0)
+    twopm = now.replace(hour=7, minute=0, second=0, microsecond=0)
+    sevenpm = now.replace(hour=12, minute=0, second=0, microsecond=0)
+    eightpm = now.replace(hour=13, minute=0, second=0, microsecond=0)
+    if (now < twopm and now > onepm) or (now < eightpm and now > sevenpm):
+        print("it's time for ig update")
+        for igUsername in igUsernames:
+            relist = getNewPost(igUsername,os.environ['igsid'])
+            if(relist):
+                for Robj in relist:
+                    post_type = 'image'
+                    if Robj['is_video']:
+                        post_type = 'video'
 
-            em=discord.Embed(title="See original post in instagram", url = Robj['post_url'],description="binus_bandung has just posted a new {}!".format(post_type))
-            em.set_image(url=Robj['display_url'])
-            print(Robj)
-            em.set_footer(text="posted: {}\nfetched: {}".format((Robj['taken_at_timestamp']+datetime.timedelta(hours=7)).strftime("%d-%m-%Y %H:%M:%S"),(datetime.datetime.now() + datetime.timedelta(hours = 7)).strftime("%d-%m-%Y %H:%M:%S")))
-            await bot.get_channel(channelint).send(embed = em)
+                    em=discord.Embed(title="See original post in instagram", url = Robj['post_url'],description="{} has just posted a new {}!".format(igUsername,post_type))
+                    em.set_image(url=Robj['display_url'])
+                    print(Robj)
+                    em.set_footer(text="posted: {}\nfetched: {}".format((Robj['taken_at_timestamp']+datetime.timedelta(hours=7)).strftime("%d-%m-%Y %H:%M:%S"),(datetime.datetime.now() + datetime.timedelta(hours = 7)).strftime("%d-%m-%Y %H:%M:%S")))
+                    await bot.get_channel(channelint).send(embed = em)
     
 
 @tasks.loop(hours=1)

@@ -1,7 +1,7 @@
 # CS-B25 Discord Bot
-last update : July 204th 2021
+last update : July 27th 2021
 
-fix: multiple dailyQuotes() sent
+feat: allow multiple instagram users & posts update
 ## Features Available:
 
 ### 0. B$help

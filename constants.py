@@ -16,3 +16,5 @@ bot = commands.Bot(commands.when_mentioned_or('B$'),
                    status=botstatus,
                    intents=botintents)
 bot.remove_command("help")
+
+igUsernames = ['binus_bandung','fypbinus','sadc.binusbandung','informatics.binusbandung','himtibinusbandung']
