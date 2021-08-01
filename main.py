@@ -260,6 +260,10 @@ async def igUpdate():
             if(relist):
                 for Robj in relist:
                     post_type = 'image'
+                    if Robj['post_url'] == 'plz update sid':
+                        await bot.get_channel(855477991600422926).send("plz update sid")
+                        return
+                        
                     if Robj['is_video']:
                         post_type = 'video'
 

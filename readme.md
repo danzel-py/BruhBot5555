@@ -1,7 +1,7 @@
 # CS-B25 Discord Bot
-last update : July 27th 2021
+last update : Aug 1st 2021
 
-feat: allow multiple instagram users & posts update
+feat: now wrong IG sid notifies
 ## Features Available:
 
 ### 0. B$help

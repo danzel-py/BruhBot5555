@@ -38,6 +38,9 @@ def getNewPost(uname, session_id):
             print("no new post")
     except HTTPError:
         print("failed getting ig profile")
+    except KeyError:
+        return [{'post_url': "plz update sid"}]
+
     # except:
     #     print("some error occurred (not sid) on getting profile")
 
