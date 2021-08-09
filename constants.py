@@ -10,7 +10,8 @@ botintents = discord.Intents.default()
 botintents.presences = True
 botintents.members = True
 botactivity = discord.Game(name="B$help")
-botstatus = discord.Status.online
+# botstatus = discord.Status.online
+botstatus = discord.Status.dnd
 bot = commands.Bot(commands.when_mentioned_or('B$'),
                    activity=botactivity,
                    status=botstatus,
@@ -18,3 +19,7 @@ bot = commands.Bot(commands.when_mentioned_or('B$'),
 bot.remove_command("help")
 
 igUsernames = ['binus_bandung','fypbinus','sadc.binusbandung','informatics.binusbandung','himtibinusbandung']
+
+lomba_rolelist = {
+    "cp": "Competitive Programming",
+    "ctf":"CTF, CyberSec, InfoSec"}

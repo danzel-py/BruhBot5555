@@ -1,7 +1,7 @@
 # CS-B25 Discord Bot
-last update : Aug 1st 2021
+last update : Aug 9th 2021
 
-feat: now wrong IG sid notifies
+smol tweak
 ## Features Available:
 
 ### 0. B$help
@@ -44,7 +44,7 @@ Deletes last reminder entry
     B$undoreminder
 
 ### 2. Info Binus
-  - Get new post from binus_bandung's instagram   
+Get new post from some binus related instagram   
 
 ### 3. Other 
 
@@ -104,7 +104,7 @@ example:
   - Minta admin bikin role kelas maybe
 
 ### 2. Info Binus
-  - Create ig user lists to fetch posts from (currently only binus_bandung)
+  - Create ig user lists to fetch posts from some igs
 
 ## Features - TOADD:
 

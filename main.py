@@ -10,7 +10,7 @@ from functions.tablerfun import tablerFunction
 from functions.weatherquotefun import todaysQuote, todaysWeather, getQuote
 from functions.instagramfun import getNewPost
 from cogs.Reminder import Reminder
-from constants import rolelist, channelint, bot, igUsernames
+from constants import rolelist, channelint, bot, igUsernames, lomba_rolelist
 # from emoji import UNICODE_EMOJI
 # from discord.utils import get
 # import asyncio
@@ -39,6 +39,20 @@ async def restartbf(ctx):
     await ctx.channel.send("Please wait...")
     restart_bot()
 
+@bot.command()
+async def roleplease(ctx, roleArg):
+    # if(ctx.channel.name == "bot-deenz"):
+    if(ctx.channel.name == "role-bot-etc"):
+        if roleArg in lomba_rolelist:
+            # await ctx.channel.send(lomba_rolelist[roleArg])
+            rrole = discord.utils.get(ctx.guild.roles,name=lomba_rolelist[roleArg])
+
+            await ctx.message.author.add_roles(rrole)
+            await ctx.channel.send("added {}!".format(lomba_rolelist[roleArg]))
+        else:
+            await ctx.channel.send("role isn't available yet :(")
+    else:
+        await ctx.channel.send("uh oh wrong channel")
 
 @bot.command(name="testdailyquote")
 async def inspiretodaybf(ctx):
