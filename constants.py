@@ -1,12 +1,11 @@
 import discord
 from discord.ext import commands
 
-# bot commands b25bdg 855498805516566538
-# testing channel 855477991600422926
 
 rolelist = {"fooRole": "855791882834280478"}
-channelint = 855498805516566538
-botintents = discord.Intents.default()
+# channelint = 855498805516566538
+channelint = 1047109252973596724 # botz
+botintents = discord.Intents.all()
 botintents.presences = True
 botintents.members = True
 botactivity = discord.Game(name="B$help")

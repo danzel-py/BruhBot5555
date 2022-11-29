@@ -25,12 +25,25 @@ def restart_bot():
 
 
 # ----
+from dislash import ContextMenuInteraction, InteractionClient
 
+inter_client = InteractionClient(bot)
+
+@inter_client.message_command(name="Reverse")
+async def reverse(inter: ContextMenuInteraction):
+    # Message commands always have only this ^ argument
+    if inter.message.content:
+        # Here we will send a reversed message to the chat
+        await inter.respond(inter.message.content[::-1])
+    else:
+        # Here we will explain that the message isn't valid
+        await inter.respond("There's no content", ephemeral=True)
 # COMMAND: REMINDER
 
 bot.add_cog(Reminder(bot))
 
 # ----
+
 
 
 # OTHER COMMANDS
@@ -81,8 +94,9 @@ async def on_ready():
     dailyQuotes.start()
     igUpdate.start()
     print('We have logged in as {0.user}'.format(bot))
+    await bot.tree.sync()
     # Channel ID goes here
-    await bot.get_channel(855477991600422926).send(
+    await bot.get_channel(channelint).send(
         "Hi I'm ready, `B$help` to get commands.")
 
 
@@ -116,6 +130,7 @@ async def on_message(message):
 
     if msg.startswith('B$hello'):
         await message.channel.send('Hello!')
+        await bot.tree.sync()
 
     # Reset Reminder
     if msg.startswith('B$resetreminder'):
@@ -309,5 +324,9 @@ async def dailyQuotes():
 
 my_secret = os.environ['TOKEN']
 
+
+
 keep_alive()  # AUTO PING
 bot.run(my_secret)
+
+
